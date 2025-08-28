@@ -348,20 +348,6 @@
       position: relative;
     }
 
-    .corner-label {
-      position: absolute;
-      font-size: 10px;
-      color: #666;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .corner-label.top-left { top: 5px; left: 5px; }
-    .corner-label.top-right { top: 5px; right: 5px; }
-    .corner-label.bottom-left { bottom: 5px; left: 5px; }
-    .corner-label.bottom-right { bottom: 5px; right: 5px; }
-
     .model-name {
       margin-top: 12px;
       font-size: 0.85em;
@@ -390,10 +376,22 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: calc(var(--edge) * 1.8) calc(var(--edge) * 1.4);
+      padding: calc(var(--edge) * 2.5) calc(var(--edge) * 1.4) calc(var(--edge) * 1.8);
       box-sizing: border-box;
       overflow: hidden;
       margin: calc(var(--edge) / 2);
+    }
+
+    .quadrant-title {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.7);
+      text-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
 
     .cell:nth-child(1) {
@@ -429,6 +427,7 @@
       line-height: 1.1;
       color: white;
       text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      margin-top: 0.5rem;
       margin-bottom: calc(var(--edge) * 0.8);
       font-size: calc(var(--badge) * 0.12);
     }
@@ -450,7 +449,8 @@
       background: #9ca3af;
     }
 
-    .badge.hidden-tags .label {
+    .badge.hidden-tags .label,
+    .badge.hidden-tags .quadrant-title {
       display: none;
     }
 
@@ -649,15 +649,27 @@
       <div class="badge-container">
         <div id="badge-wrapper" class="badge-wrapper">
           <div id="badge" class="badge">
-            <div class="cell"><span class="code"></span><span class="label"></span></div>
-            <div class="cell"><span class="code"></span><span class="label"></span></div>
-            <div class="cell"><span class="code"></span><span class="label"></span></div>
-            <div class="cell"><span class="code"></span><span class="label"></span></div>
+            <div class="cell">
+              <span class="quadrant-title">TASK</span>
+              <span class="code"></span>
+              <span class="label"></span>
+            </div>
+            <div class="cell">
+              <span class="quadrant-title">RESOURCES</span>
+              <span class="code"></span>
+              <span class="label"></span>
+            </div>
+            <div class="cell">
+              <span class="quadrant-title">APPROACH &amp; CRAFT</span>
+              <span class="code"></span>
+              <span class="label"></span>
+            </div>
+            <div class="cell">
+              <span class="quadrant-title">EVALUATION</span>
+              <span class="code"></span>
+              <span class="label"></span>
+            </div>
           </div>
-          <div class="corner-label top-left">TASK</div>
-          <div class="corner-label top-right">RESOURCES</div>
-          <div class="corner-label bottom-left">APPROACH &amp; CRAFT</div>
-          <div class="corner-label bottom-right">EVALUATION</div>
           <div id="model-name" class="model-name"></div>
         </div>
 
@@ -804,10 +816,11 @@
     function smartFit(codeNode, labelNode) {
       const cell = codeNode.parentElement;
       const padding = 20;
-      
+      const titleSpace = 30; // Reserve space for the title
+
       const maxWidth = cell.clientWidth - (padding * 2);
-      const maxHeight = cell.clientHeight - (padding * 2);
-      
+      const maxHeight = cell.clientHeight - (padding * 2) - titleSpace;
+
       let codeSize = 0.12;
       let labelSize = 0.05;
       
