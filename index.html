@@ -655,17 +655,17 @@
       data: [
         {code: 'P', label: 'Public', desc: 'Public or user provided'},
         {code: 'I', label: 'Internal', desc: 'Private sources'},
-        {code: 'M', label: 'Model-only', desc: 'No external input'},
+        {code: 'M', label: 'Model-only', desc: 'No external input', exclusive: true},
         {code: 'U', label: 'Unclear', desc: 'Source unknown', exclusive: true}
       ],
       method: [
-        {code: 'R', label: 'Raw', desc: 'First answer'},
+        {code: 'R', label: 'Raw', desc: 'First answer', exclusive: true},
         {code: 'G', label: 'Guided', desc: 'Step-by-step prompts'},
         {code: 'W', label: 'Rewriter', desc: 'Transformed text'},
         {code: 'A', label: 'Augmented', desc: 'Used tools'}
       ],
       review: [
-        {code: 'U', label: 'Unreviewed', desc: 'Not checked'},
+        {code: 'U', label: 'Unreviewed', desc: 'Not checked', exclusive: true},
         {code: 'S', label: 'Skimmed', desc: 'Quick read'},
         {code: 'P', label: 'Peer', desc: 'Non-expert review'},
         {code: 'E', label: 'Expert', desc: 'Expert reviewed'},
@@ -689,12 +689,9 @@
           'M': 'only the AI model\'s training data',
           'U': 'unclear or unspecified sources'
         },
-        combinations: {
-          'PI': 'public and internal sources',
-          'PM': 'public sources and model knowledge',
-          'IM': 'internal data and model knowledge',
-          'PIM': 'public sources, internal data, and model knowledge'
-        }
+          combinations: {
+            'PI': 'public and internal sources'
+          }
       },
       method: {
         'R': {desc: 'with raw output', suffix: '(first response used)'},
@@ -723,30 +720,68 @@
     let selectedModels = [];
     let aiModels = [];
 
-    // Initialize TRACE options with proper mutual exclusivity
+    function setupGroup(groupId) {
+      const group = document.getElementById(groupId);
+      if (!group) return;
+
+      group.addEventListener('change', () => {
+        const inputs = group.querySelectorAll('input');
+        const exclusive = [...group.querySelectorAll('input[data-exclusive="true"]')];
+        const nonExclusive = [...group.querySelectorAll('input:not([data-exclusive="true"])')];
+        const checkedExclusive = exclusive.find(i => i.checked);
+        const checkedNonExclusive = nonExclusive.some(i => i.checked);
+
+        if (checkedExclusive) {
+          nonExclusive.forEach(i => {
+            i.checked = false;
+            i.disabled = true;
+            i.parentElement.classList.remove('selected');
+          });
+          exclusive.forEach(i => {
+            if (i !== checkedExclusive) {
+              i.checked = false;
+              i.disabled = true;
+              i.parentElement.classList.remove('selected');
+            } else {
+              i.disabled = false;
+            }
+          });
+        } else if (checkedNonExclusive) {
+          exclusive.forEach(i => {
+            i.checked = false;
+            i.disabled = true;
+            i.parentElement.classList.remove('selected');
+          });
+          nonExclusive.forEach(i => {
+            i.disabled = false;
+          });
+        } else {
+          exclusive.forEach(i => { i.disabled = false; });
+          nonExclusive.forEach(i => { i.disabled = false; });
+        }
+
+        inputs.forEach(i => {
+          const label = i.parentElement;
+          label.classList.toggle('selected', i.checked);
+        });
+
+        updateBadge();
+      });
+    }
+
+    // Initialize TRACE options with mutual exclusivity rules
     function initializeOptions() {
       Object.entries(TAGS).forEach(([group, tags]) => {
         const container = document.querySelector(`#${group}-group .quadrant-options`);
         container.innerHTML = '';
-        
+
         tags.forEach(tag => {
-          let inputType = 'radio';
-          let inputName = group;
-          
-          if (group === 'data' && tag.code !== 'U') {
-            inputType = 'checkbox';
-            inputName = 'data-multi';
-          } else if (group === 'review') {
-            inputType = 'checkbox';
-            inputName = 'review-multi';
-          }
-          
           const optionItem = document.createElement('label');
           optionItem.className = 'option-item';
           optionItem.innerHTML = `
-            <input type="${inputType}" 
-                   id="${group}-${tag.code}" 
-                   name="${inputName}" 
+            <input type="checkbox"
+                   id="${group}-${tag.code}"
+                   name="${group}-multi"
                    value="${tag.code}"
                    ${tag.exclusive ? 'data-exclusive="true"' : ''}>
             <div class="option-content">
@@ -757,60 +792,12 @@
               <div class="option-desc">${tag.desc}</div>
             </div>
           `;
-          
-          const input = optionItem.querySelector('input');
-          input.addEventListener('change', function() {
-            if (this.checked) {
-              optionItem.classList.add('selected');
-            } else {
-              optionItem.classList.remove('selected');
-            }
-            updateBadge();
-          });
-          
+
           container.appendChild(optionItem);
         });
       });
-      
-      // Special handling for Data group exclusivity
-      document.getElementById('data-group').addEventListener('change', (e) => {
-        const target = e.target;
-        const allDataInputs = document.querySelectorAll('#data-group input');
-        const unclearInput = document.getElementById('data-U');
-        const multiInputs = document.querySelectorAll('input[name="data-multi"]');
-        
-        if (target.id === 'data-U' && target.checked) {
-          multiInputs.forEach(input => {
-            input.checked = false;
-            input.disabled = true;
-            input.parentElement.classList.remove('selected');
-          });
-        } else if (target.name === 'data-multi' && target.checked) {
-          if (unclearInput) {
-            unclearInput.checked = false;
-            unclearInput.disabled = true;
-            unclearInput.parentElement.classList.remove('selected');
-          }
-        }
-        
-        const hasSelection = document.querySelector('#data-group input:checked');
-        if (!hasSelection) {
-          allDataInputs.forEach(input => {
-            input.disabled = false;
-          });
-        }
-        
-        allDataInputs.forEach(input => {
-          const label = input.parentElement;
-          if (input.checked) {
-            label.classList.add('selected');
-          } else {
-            label.classList.remove('selected');
-          }
-        });
-        
-        updateBadge();
-      });
+
+      ['role-group', 'data-group', 'method-group', 'review-group'].forEach(setupGroup);
     }
 
     // Smart text sizing for badge cells
@@ -848,58 +835,72 @@
 
     // Update badge display
     function updateBadge() {
-      const role = document.querySelector('input[name="role"]:checked');
+      const role = [...document.querySelectorAll('#role-group input:checked')];
       const data = [...document.querySelectorAll('#data-group input:checked')];
-      const method = document.querySelector('input[name="method"]:checked');
+      const method = [...document.querySelectorAll('#method-group input:checked')];
       const review = [...document.querySelectorAll('#review-group input:checked')];
-      
+
       const cells = document.querySelectorAll('.cell');
-      
+
       const roleCode = cells[0].querySelector('.code');
       const roleLabel = cells[0].querySelector('.label');
-      roleCode.textContent = role ? role.value : '';
-      roleLabel.textContent = role ? TAGS.role.find(t => t.code === role.value).label : '';
+      roleCode.textContent = role.map(r => r.value).join('');
+      roleLabel.textContent = role.length ?
+        role.map(r => TAGS.role.find(t => t.code === r.value).label).join(' + ') : '';
       smartFit(roleCode, roleLabel);
-      
+
       const dataCode = cells[1].querySelector('.code');
       const dataLabel = cells[1].querySelector('.label');
       dataCode.textContent = data.map(d => d.value).join('');
-      dataLabel.textContent = data.length ? 
+      dataLabel.textContent = data.length ?
         data.map(d => TAGS.data.find(t => t.code === d.value).label).join(' + ') : '';
       smartFit(dataCode, dataLabel);
-      
+
       const methodCode = cells[2].querySelector('.code');
       const methodLabel = cells[2].querySelector('.label');
-      methodCode.textContent = method ? method.value : '';
-      methodLabel.textContent = method ? TAGS.method.find(t => t.code === method.value).label : '';
+      methodCode.textContent = method.map(m => m.value).join('');
+      methodLabel.textContent = method.length ?
+        method.map(m => TAGS.method.find(t => t.code === m.value).label).join(' + ') : '';
       smartFit(methodCode, methodLabel);
-      
+
       const reviewCode = cells[3].querySelector('.code');
       const reviewLabel = cells[3].querySelector('.label');
       reviewCode.textContent = review.map(r => r.value).join('');
-      reviewLabel.textContent = review.length ? 
+      reviewLabel.textContent = review.length ?
         review.map(r => TAGS.review.find(t => t.code === r.value).label).join(' + ') : '';
       smartFit(reviewCode, reviewLabel);
-      
+
       updateCitation();
     }
 
     // Update citation panels
     function updateCitation() {
-      const role = document.querySelector('input[name="role"]:checked');
+      const role = [...document.querySelectorAll('#role-group input:checked')];
       const data = [...document.querySelectorAll('#data-group input:checked')];
-      const method = document.querySelector('input[name="method"]:checked');
+      const method = [...document.querySelectorAll('#method-group input:checked')];
       const review = [...document.querySelectorAll('#review-group input:checked')];
-      
-      const traceCode = `${role ? role.value : '_'}-${data.map(d => d.value).join('') || '_'}-${method ? method.value : '_'}-${review.map(r => r.value).join('') || '_'}`;
+
+      const traceCode = `${role.map(r => r.value).join('') || '_'}-${data.map(d => d.value).join('') || '_'}-${method.map(m => m.value).join('') || '_'}-${review.map(r => r.value).join('') || '_'}`;
       
       // Build natural language description
       let naturalText = "I used AI to ";
       
-      if (role && NL_TEMPLATES.role[role.value]) {
-        const r = NL_TEMPLATES.role[role.value];
-        naturalText += `${r.verb} ${r.action}`;
-        if (r.prep) naturalText += ` ${r.prep}`;
+      if (role.length > 0) {
+        const parts = role.map(r => {
+          const tmpl = NL_TEMPLATES.role[r.value];
+          if (!tmpl) return '';
+          let str = `${tmpl.verb} ${tmpl.action}`;
+          if (tmpl.prep) str += ` ${tmpl.prep}`;
+          return str;
+        }).filter(Boolean);
+        if (parts.length === 1) {
+          naturalText += parts[0];
+        } else if (parts.length === 2) {
+          naturalText += `${parts[0]} and ${parts[1]}`;
+        } else {
+          const last = parts.pop();
+          naturalText += `${parts.join(', ')}, and ${last}`;
+        }
       } else {
         naturalText += "assist with unspecified tasks";
       }
@@ -911,17 +912,25 @@
         } else if (data.length === 1 && NL_TEMPLATES.data.single[data[0].value]) {
           naturalText += ` using ${NL_TEMPLATES.data.single[data[0].value]}`;
         } else {
-          const sources = data.map(d => NL_TEMPLATES.data.single[d.value] || d.value).join(' and ');
-          naturalText += ` using ${sources}`;
+          const sources = data.map(d => NL_TEMPLATES.data.single[d.value] || d.value);
+          if (sources.length === 2) {
+            naturalText += ` using ${sources[0]} and ${sources[1]}`;
+          } else {
+            const last = sources.pop();
+            naturalText += ` using ${sources.join(', ')}, and ${last}`;
+          }
         }
       } else {
         naturalText += " using unspecified sources";
       }
       
-      if (method && NL_TEMPLATES.method[method.value]) {
-        const m = NL_TEMPLATES.method[method.value];
-        naturalText += `, ${m.desc}`;
-        if (m.suffix) naturalText += ` ${m.suffix}`;
+      if (method.length > 0) {
+        const parts = method.map(m => {
+          const tmpl = NL_TEMPLATES.method[m.value];
+          if (!tmpl) return '';
+          return `${tmpl.desc}${tmpl.suffix ? ` ${tmpl.suffix}` : ''}`;
+        }).filter(Boolean);
+        naturalText += `, ${parts.join(', ')}`;
       } else {
         naturalText += ", using an unspecified approach";
       }
@@ -966,9 +975,9 @@
       
       // Formal citation
       let formal = `AI Disclosure (${new Date().toISOString().split('T')[0]})\nTRACE: ${traceCode}\n\n`;
-      formal += `Role: ${role ? TAGS.role.find(t => t.code === role.value).label : 'Unspecified'}\n`;
+      formal += `Role: ${role.length ? role.map(r => TAGS.role.find(t => t.code === r.value).label).join(', ') : 'Unspecified'}\n`;
       formal += `Data: ${data.length ? data.map(d => TAGS.data.find(t => t.code === d.value).label).join(', ') : 'Unspecified'}\n`;
-      formal += `Method: ${method ? TAGS.method.find(t => t.code === method.value).label : 'Unspecified'}\n`;
+      formal += `Method: ${method.length ? method.map(m => TAGS.method.find(t => t.code === m.value).label).join(', ') : 'Unspecified'}\n`;
       formal += `Review: ${review.length ? review.map(r => TAGS.review.find(t => t.code === r.value).label).join(', ') : 'None'}`;
       
       if (selectedModels.length > 0) {
