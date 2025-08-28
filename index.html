@@ -458,12 +458,31 @@
     /* Citation Section */
     /* Citation Section - Remove tab styles, add stacked layout */
     .citation-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       font-weight: 600;
       color: #1e293b;
       font-size: 0.9rem;
       padding-bottom: 0.5rem;
       margin-bottom: 0.75rem;
       border-bottom: 1px solid #e2e8f0;
+    }
+
+    .copy-btn {
+      background: none;
+      border: none;
+      color: #64748b;
+      cursor: pointer;
+      font-size: 0.75rem;
+      padding: 0.125rem 0.25rem;
+      border-radius: 4px;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: #e2e8f0;
+      color: #1e293b;
     }
 
     .citation-panel {
@@ -640,7 +659,7 @@
 
         <div class="actions">
           <button class="button" onclick="downloadBadge()">📥 Download Badge</button>
-          <button class="button secondary" onclick="copyCitation()">📋 Copy Citation</button>
+          <button class="button secondary" onclick="copyCitation('tab-formal', this)">📋 Copy Citation</button>
         </div>
       </div>
     </div>
@@ -649,12 +668,16 @@
     <div class="panel">
       <div class="citation-container">
         <div class="citation-section">
-          <div class="citation-header">Formal Citation</div>
+          <div class="citation-header">Formal Citation
+            <button class="copy-btn" onclick="copyCitation('tab-formal', this)">Copy</button>
+          </div>
           <div class="citation-panel" id="tab-formal"></div>
         </div>
 
         <div class="citation-section">
-          <div class="citation-header">Natural Language</div>
+          <div class="citation-header">Natural Language
+            <button class="copy-btn" onclick="copyCitation('tab-natural', this)">Copy</button>
+          </div>
           <div class="citation-panel" id="tab-natural"></div>
         </div>
       </div>
@@ -1135,17 +1158,20 @@
       });
     }
 
-    function copyCitation() {
-      const formalPanel = document.getElementById('tab-formal');
-      navigator.clipboard.writeText(formalPanel.textContent);
+    function copyCitation(panelId, btn) {
+      const panel = document.getElementById(panelId);
+      if (!panel) return;
+      navigator.clipboard.writeText(panel.textContent);
 
-      // Visual feedback
-      const btn = document.querySelector('.button.secondary');
-      const originalText = btn.textContent;
-      btn.textContent = '✓ Copied!';
-      setTimeout(() => {
-        btn.textContent = originalText;
-      }, 2000);
+      if (btn) {
+        const originalText = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        btn.disabled = true;
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.disabled = false;
+        }, 2000);
+      }
     }
 
     // Initialize on load
