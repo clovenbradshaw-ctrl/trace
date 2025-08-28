@@ -458,12 +458,28 @@
     /* Citation Section */
     /* Citation Section - Remove tab styles, add stacked layout */
     .citation-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       font-weight: 600;
       color: #1e293b;
       font-size: 0.9rem;
       padding-bottom: 0.5rem;
       margin-bottom: 0.75rem;
       border-bottom: 1px solid #e2e8f0;
+    }
+
+    .copy-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #64748b;
+      font-size: 0.9rem;
+      padding: 0;
+    }
+
+    .copy-btn:hover {
+      color: #1e293b;
     }
 
     .citation-panel {
@@ -640,7 +656,7 @@
 
         <div class="actions">
           <button class="button" onclick="downloadBadge()">📥 Download Badge</button>
-          <button class="button secondary" onclick="copyCitation()">📋 Copy Citation</button>
+          <button class="button secondary" onclick="copyCitation('tab-formal', this)">📋 Copy Citation</button>
         </div>
       </div>
     </div>
@@ -649,12 +665,18 @@
     <div class="panel">
       <div class="citation-container">
         <div class="citation-section">
-          <div class="citation-header">Formal Citation</div>
+          <div class="citation-header">
+            <span>Formal Citation</span>
+            <button class="copy-btn" onclick="copyCitation('tab-formal', this)">📋</button>
+          </div>
           <div class="citation-panel" id="tab-formal"></div>
         </div>
 
         <div class="citation-section">
-          <div class="citation-header">Natural Language</div>
+          <div class="citation-header">
+            <span>Natural Language</span>
+            <button class="copy-btn" onclick="copyCitation('tab-natural', this)">📋</button>
+          </div>
           <div class="citation-panel" id="tab-natural"></div>
         </div>
       </div>
@@ -883,7 +905,12 @@
       const method = [...document.querySelectorAll('#method-group input:checked')];
       const review = [...document.querySelectorAll('#review-group input:checked')];
 
-      const traceCode = `${role.map(r => r.value).join('') || '_'}-${data.map(d => d.value).join('') || '_'}-${method.map(m => m.value).join('') || '_'}-${review.map(r => r.value).join('') || '_'}`;
+      const traceCode = [
+        role.map(r => r.value).join('') || '_',
+        data.map(d => d.value).join('') || '_',
+        method.map(m => m.value).join('') || '_',
+        review.map(r => r.value).join('') || '_'
+      ].join('; ');
       
       // Build natural language description
       const modelNames = selectedModels.map(m => m.name);
@@ -967,10 +994,10 @@
 
       // Formal citation
       let formal = `AI Disclosure (${new Date().toISOString().split('T')[0]})\nTRACE: ${traceCode}${modelNames.length ? ' via ' + modelNames.join(' + ') : ''}\n\n`;
-      formal += `Role: ${role.length ? role.map(r => TAGS.role.find(t => t.code === r.value).label).join(', ') : 'Unspecified'}\n`;
-      formal += `Data: ${data.length ? data.map(d => TAGS.data.find(t => t.code === d.value).label).join(', ') : 'Unspecified'}\n`;
-      formal += `Method: ${method.length ? method.map(m => TAGS.method.find(t => t.code === m.value).label).join(', ') : 'Unspecified'}\n`;
-      formal += `Review: ${review.length ? review.map(r => TAGS.review.find(t => t.code === r.value).label).join(', ') : 'None'}`;
+      formal += `Role: ${role.length ? role.map(r => TAGS.role.find(t => t.code === r.value).label).join(', ') : 'Unspecified'};\n`;
+      formal += `Data: ${data.length ? data.map(d => TAGS.data.find(t => t.code === d.value).label).join(', ') : 'Unspecified'};\n`;
+      formal += `Method: ${method.length ? method.map(m => TAGS.method.find(t => t.code === m.value).label).join(', ') : 'Unspecified'};\n`;
+      formal += `Review: ${review.length ? review.map(r => TAGS.review.find(t => t.code === r.value).label).join(', ') : 'None'};`;
       
       document.getElementById('tab-formal').textContent = formal;
       document.getElementById('tab-natural').textContent = naturalText;
@@ -1135,17 +1162,17 @@
       });
     }
 
-    function copyCitation() {
-      const formalPanel = document.getElementById('tab-formal');
-      navigator.clipboard.writeText(formalPanel.textContent);
+    function copyCitation(panelId = 'tab-formal', btn) {
+      const panel = document.getElementById(panelId);
+      navigator.clipboard.writeText(panel.textContent.trim());
 
-      // Visual feedback
-      const btn = document.querySelector('.button.secondary');
-      const originalText = btn.textContent;
-      btn.textContent = '✓ Copied!';
-      setTimeout(() => {
-        btn.textContent = originalText;
-      }, 2000);
+      if (btn) {
+        const original = btn.textContent;
+        btn.textContent = btn.classList.contains('copy-btn') ? '✓' : '✓ Copied!';
+        setTimeout(() => {
+          btn.textContent = original;
+        }, 2000);
+      }
     }
 
     // Initialize on load
