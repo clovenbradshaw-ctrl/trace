@@ -219,6 +219,6 @@ The output underwent peer review. The AI model used was Anthropic: Claude Opus 4
 *Because the danger isn't in using AI—it's in pretending we're not.*
 
 **Version**: 1.1.0  
-**Last Updated**: August 2025  
+**Last Updated**: August 28, 2025
 **Framework**: TRACE (Transparent Reporting of AI Contributions & Edits)
 **Copyright**: Michael Lacy
