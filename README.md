@@ -204,6 +204,7 @@ Details: [natural language description]
 - Try local server for CORS issues
 - Models list falls back gracefully if API unavailable
 - Clear cache if badge generation fails
+- Send feedback: [clovenbradshaw@gmail.com](mailto:clovenbradshaw@gmail.com)
 
 ## Future Roadmap
 
