@@ -205,3 +205,4 @@ Details: [natural language description]
 **Version**: 1.1.0  
 **Last Updated**: August 2025  
 **Framework**: TRACE (Transparent Reporting of AI Contributions & Edits)
+**Copyright**: Michael Lacy
