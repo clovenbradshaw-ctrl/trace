@@ -29,15 +29,7 @@ That's why experiments like TRACE matter. Not because they prevent the ruin, but
 
 TRACE is a framework for transparent AI disclosure that creates visual badges and citations documenting exactly how AI was used in any piece of work. Every AI-touched project gets a four-quadrant badge showing:
 
-### 1. DATA - What sources were given?
-The information foundation that shaped the AI's response. This quadrant discloses whether the AI worked with publicly verifiable information, proprietary materials, or relied solely on its training data.
-
-- **Public**: Only openly available information, URLs, or user-created prompts
-- **Internal**: Private, proprietary, or paywalled materials  
-- **Model-only**: No external inputs provided; relied on pre-trained knowledge
-- **Unclear**: Source attribution is uncertain or unknowable
-
-### 2. ROLE - What job did the AI do?
+### T - TASK: What job did the AI do?
 The primary function the AI performed in creating the content. This quadrant reveals the degree of AI involvement, from light editing to full generation.
 
 - **Assist**: Cleaned up grammar, spelling, style, or formatting
@@ -47,15 +39,23 @@ The primary function the AI performed in creating the content. This quadrant rev
 - **Exploratory**: Used experimentally without fixed goals
 - **Creative**: Invented original content, narratives, or artistic elements
 
-### 3. METHODOLOGY - How was the job carried out?
-The workflow and techniques used to produce the output. This quadrant describes the complexity and structure of the AI interaction.
+### R - RESOURCES: What sources were given?
+The information foundation that shaped the AI's response. This quadrant discloses whether the AI worked with publicly verifiable information, proprietary materials, or relied solely on its training data.
+
+- **Public**: Only openly available information, URLs, or user-created prompts
+- **Internal**: Private, proprietary, or paywalled materials
+- **Model-only**: No external inputs provided; relied on pre-trained knowledge
+- **Unclear**: Source attribution is uncertain or unknowable
+
+### A&C - APPROACH & CRAFT: How was the job carried out?
+The workflow, techniques, and craftsmanship used to produce the output. This quadrant describes both the approach (strategy) and craft (skillful execution) of the AI interaction.
 
 - **Raw Response**: Published the first output with minimal editing
 - **Guided**: Structured the task with steps, scaffolding, or context
 - **Rewriter**: Transformed existing text into a new format or style
 - **Augmented**: Used external tools, plugins, or environments beyond the base model
 
-### 4. REVIEW - How was the output checked?
+### E - EVALUATION: How was the output checked?
 The level and type of human oversight applied after generation. This quadrant indicates the verification and quality control measures taken.
 
 - **Unreviewed**: No human checked the output before use
@@ -64,7 +64,7 @@ The level and type of human oversight applied after generation. This quadrant in
 - **Expert Review**: Subject-matter expert verified accuracy and quality
 - **AI Self-Check**: The model was prompted to critique or improve its own output
 
-Each quadrant works together to create a complete picture of how AI was integrated into the content creation process, promoting transparency and helping both creators and audiences understand the human-AI collaboration involved.
+The acronym TRACE represents the four quadrants (Task, Resources, Approach & Craft, Evaluation) while emphasizing Transparent Reporting of AI Contributions & Edits.
 
 ## Features
 
@@ -77,29 +77,45 @@ Each quadrant works together to create a complete picture of how AI was integrat
 ## Common Use Cases
 
 ### Deep Research
-Using tools from Anthropic and OpenAI for analysis and citations on topics that are difficult or impossible to "just Google about."
+Using tools from Anthropic and OpenAI for analysis tasks with citations on topics that are difficult or impossible to "just Google about."
 - Typical badge: `P-Analysis-Guided-Expert`
+- Task: Analysis
+- Resources: Public
+- Approach & Craft: Guided
+- Evaluation: Expert
 
 ### Proofreading
 Finding typos and homophone replacements (they're/their, its/it's) that verbal learners often miss.
 - Typical badge: `Model-Assist-Raw-Skimmed`
+- Task: Assist
+- Resources: Model-only
+- Approach & Craft: Raw
+- Evaluation: Skimmed
 
 ### Code Development
 Building interactive charts and mini-websites with coding assistant tools.
 - Typical badge: `Public-Creative-Augmented-General`
+- Task: Creative
+- Resources: Public
+- Approach & Craft: Augmented
+- Evaluation: General
 
 ### Content Creation
 Generating drafts for blog posts, reports, or creative writing.
 - Typical badge: `Public-Draft-Guided-Skimmed`
+- Task: Draft
+- Resources: Public
+- Approach & Craft: Guided
+- Evaluation: Skimmed
 
 ## Quick Start
 
 1. Open the TRACE badge generator in your browser
 2. Select options from each quadrant:
-   - Choose your data source type
-   - Define the AI's role
-   - Specify your methodology
-   - Indicate review level
+   - Choose your resource type
+   - Define the AI's task
+   - Specify your approach & craft
+   - Indicate evaluation level
 3. (Optional) Add specific AI models used
 4. Download badge or copy citation
 
@@ -124,15 +140,15 @@ npx http-server
 
 ### Research Paper
 **Badge Code**: `PI-Analysis-Guided-Expert`
-**Citation**: "AI assisted in analyzing patterns using both public and internal data sources through guided prompting. The output underwent expert review."
+**Citation**: "AI performed analysis tasks using both public and internal resources through guided approach and craft. The output underwent expert evaluation."
 
-### Blog Post  
+### Blog Post
 **Badge Code**: `P-Draft-Rewriter-Skimmed`
-**Citation**: "AI drafted content from public sources using a rewriting methodology. The output received a quick review for tone and obvious issues."
+**Citation**: "AI drafted content from public resources using a rewriting approach and craft. The output received a quick skim evaluation."
 
 ### Technical Documentation
 **Badge Code**: `M-Synthesis-Augmented-General`
-**Citation**: "AI synthesized information from its training data using augmented tools. A knowledgeable colleague reviewed the output carefully."
+**Citation**: "AI synthesized information from its training resources using an augmented approach and craft. A knowledgeable colleague provided general evaluation."
 
 ## Technical Details
 
@@ -203,16 +219,16 @@ Details: [natural language description]
 AI Disclosure (2025-08-28)
 TRACE: S-P-G-G
 
-Role: Synthesis
-Data: Public
-Method: Guided
-Review: General
+Task: Synthesis
+Resources: Public
+Approach & Craft: Guided
+Evaluation: General
 
 AI Models Used:
 • Anthropic: Claude Opus 4.1 (anthropic/claude-opus-4.1)
 
-I used AI to synthesize information from multiple sources using public sources, through guided prompting.
-The output underwent general review. The AI model used was Anthropic: Claude Opus 4.1.
+AI performed synthesis using public resources through guided approach and craft.
+The output underwent general evaluation. The AI model used was Anthropic: Claude Opus 4.1.
 ```
 -------------------------
 
