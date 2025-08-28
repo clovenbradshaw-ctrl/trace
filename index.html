@@ -595,7 +595,7 @@
     transform: scale(1.1);
   }
 
-  label { 
+  label:not(.option-card) {
     display: flex;
     align-items: center;
     margin: 0.5rem 0;
@@ -604,8 +604,74 @@
     cursor: pointer;
   }
 
-  label input {
+  label:not(.option-card) input {
     margin-right: 0.5rem;
+  }
+
+  .option-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .option-card {
+    display: block;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .option-card input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .card-content {
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.75rem;
+    background: white;
+    transition: all 0.2s;
+  }
+
+  .option-card input:checked + .card-content {
+    border-color: #3b82f6;
+    background: #eff6ff;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .option-card input:disabled + .card-content {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f9fafb;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .card-content .code {
+    background: #1e293b;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .card-content .label {
+    font-weight: 500;
+    color: #1e293b;
+  }
+
+  .help-text {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-top: 0.25rem;
+    font-style: italic;
   }
 
   /* Citation Section */
@@ -920,130 +986,158 @@
           </svg>
         </button>
       </div>
-      
-      <div class="modal-body">
-        <div class="wizard-intro" id="wizard-intro">
-          <p>I'll ask you some simple questions to help you pick the right tags. Just answer "yes" or "no" to each one.</p>
-        </div>
-        
-        <div class="wizard-question" id="wizard-question" style="display: none;">
-          <div class="question-progress">
-            <span id="question-number">1</span> of <span id="total-questions">6</span>
-          </div>
-          <div class="question-tag">
-            <strong><span id="current-tag"></span> – <span id="current-tag-name"></span></strong>
-          </div>
-          <div class="question-text" id="question-text"></div>
-          <div class="question-actions">
-            <button class="button secondary" onclick="answerQuestion(false)">No</button>
-            <button class="button" onclick="answerQuestion(true)">Yes</button>
-          </div>
-        </div>
 
-        <div class="wizard-complete" id="wizard-complete" style="display: none;">
-          <div class="complete-icon">✓</div>
-          <h4>All done!</h4>
-          <p>I've selected the tags that match your answers. You can always adjust them manually if needed.</p>
-          <div class="selected-tags" id="selected-tags"></div>
-        </div>
+      <div class="modal-body">
+        <div class="wizard-question" id="wizard-question"></div>
       </div>
-      
+
       <div class="modal-footer">
         <button class="button secondary" onclick="closeWizard()">Cancel</button>
-        <button class="button" id="wizard-start" onclick="startWizard()">Start Questions</button>
-        <button class="button" id="wizard-finish" onclick="finishWizard()" style="display: none;">Finish</button>
       </div>
     </div>
   </div>
 
   <script>
     const TAGS = {
-      role:   [ 
-        {code:'E',label:'Editorial Assist'}, 
-        {code:'G',label:'Generated'}, 
-        {code:'S',label:'Synthesis'}, 
-        {code:'A',label:'Analytical'}, 
-        {code:'X',label:'Experimental'}, 
-        {code:'C',label:'Creative'} 
+      role: [
+        {code:'A', label:'Assist', question:'Did I use AI mainly to clean up or polish existing text?'},
+        {code:'D', label:'Draft', question:'Did AI generate the main body of text rather than me?'},
+        {code:'S', label:'Synth', question:'Did I give it several inputs and ask it to merge them?'},
+        {code:'N', label:'Analyze', question:'Did I ask the AI to reason, analyze, or crunch data?'},
+        {code:'E', label:'Explore', question:'Was I mainly testing outputs to see what happened?'},
+        {code:'C', label:'Create', question:'Did I ask the AI to generate something imaginative or novel?'}
       ],
-      data:   [ 
-        {code:'P',label:'Public Data', type:'checkbox'}, 
-        {code:'I',label:'Internal Data', type:'checkbox'}, 
-        {code:'T',label:'Training‑only', type:'radio'}, 
-        {code:'U',label:'Unknown', type:'radio'} 
+      data: [
+        {code:'P', label:'Public', exclusive:false, question:'Did I only use publicly available info or text I wrote?'},
+        {code:'I', label:'Internal', exclusive:false, question:'Did I provide company docs or private sources?'},
+        {code:'M', label:'Model‑only', exclusive:true, question:'Did I give no new sources, just a plain prompt?'},
+        {code:'U', label:'Unclear', exclusive:true, question:'Am I unsure of what sources shaped the answer?'}
       ],
-      method: [ 
-        {code:'T',label:'Tools'}, 
-        {code:'C',label:'Cited'}, 
-        {code:'F',label:'Reformat'}, 
-        {code:'S',label:'Staged'}, 
-        {code:'E',label:'Self‑Check'}, 
-        {code:'D',label:'1‑Shot'} 
+      method: [
+        {code:'R', label:'Raw', question:'Did I publish the model\'s first answer essentially as-is?'},
+        {code:'G', label:'Guided', question:'Did I break the task into steps or feed it context?'},
+        {code:'W', label:'Rewriter', question:'Did I give it text and ask it to reformat or restyle it?'},
+        {code:'A', label:'Augmented', question:'Did I use connected tools beyond the base model?'}
       ],
-      review: [ 
-        {code:'U',label:'Unverified'}, 
-        {code:'H',label:'Light Review'}, 
-        {code:'A',label:'Amateur Review'}, 
-        {code:'V',label:'Expert Review'} 
+      review: [
+        {code:'U', label:'Unreviewed', question:'Did I post without reading or reviewing it myself?'},
+        {code:'S', label:'Skimmed', question:'Did I glance over it but not verify details?'},
+        {code:'P', label:'Peer', question:'Did someone with general familiarity read it closely?'},
+        {code:'E', label:'Expert', question:'Did an expert review for accuracy?'},
+        {code:'A', label:'AI‑Check', question:'Did I prompt the AI to review its own draft?'}
       ]
     };
 
     let aiModels = [];
     let selectedModels = [];
     let currentWizardSection = '';
-    let wizardQuestions = [];
-    let currentQuestionIndex = 0;
-    let wizardAnswers = [];
 
-    // TRACE Wizard Questions
     const WIZARD_DATA = {
-      role: [
-        { code: 'E', name: 'Editorial Assist', question: 'Did I use the AI to proof-read, fix grammar, or clean up style?' },
-        { code: 'G', name: 'Generated', question: 'Did the AI draft most or all of the passage, and I left it largely as-is?' },
-        { code: 'S', name: 'Synthesis', question: 'Did I feed the AI several sources and have it combine them into one coherent piece?' },
-        { code: 'A', name: 'Analytical', question: 'Did I ask the AI to crunch numbers, spot patterns, or explain "why" something happens?' },
-        { code: 'X', name: 'Experimental', question: 'Was I exploring or testing what the model can do, with no set goal or format?' },
-        { code: 'C', name: 'Creative', question: 'Did the AI help invent original story lines, characters, jokes, or poetic language?' }
-      ],
-      data: [
-        { code: 'P', name: 'Public Data', question: 'While generating, did I only give it publicly available info (URLs, public docs, my own prompt)?' },
-        { code: 'I', name: 'Internal Data', question: 'Did I paste in anything private or paywalled (draft subscriber email, company sheet, paid database)?' },
-        { code: 'T', name: 'Training-only', question: 'Did I NOT add extra context—just relied on whatever was already baked into the model?', exclusive: true },
-        { code: 'U', name: 'Unknown', question: 'Am I unsure what sources the AI saw for this answer?', exclusive: true }
-      ],
-      method: [
-        { code: 'T', name: 'Tools', question: 'Did the run also tap a plug-in, code interpreter, browser, or other helper?' },
-        { code: 'C', name: 'Cited', question: 'Did I paste or upload citations the AI had to quote or summarize verbatim?' },
-        { code: 'F', name: 'Reformat', question: 'Was the main job turning existing text into a new shape (outline → essay, bullet list → prose)?' },
-        { code: 'S', name: 'Staged', question: 'Did I break the task into several deliberate steps or chain calls together?' },
-        { code: 'E', name: 'Self-Check', question: 'Did I prompt the AI to critique, grade, or correct its own draft?' },
-        { code: 'D', name: '1-Shot', question: 'Did I fire a single prompt and publish the first complete answer?' }
-      ],
-      review: [
-        { code: 'U', name: 'Unverified', question: 'Did no human (including me) read the output carefully before publishing?', exclusive: true },
-        { code: 'H', name: 'Light Review', question: 'Did someone skim for obvious errors or tone issues but not verify every fact?', exclusive: true },
-        { code: 'A', name: 'Amateur Review', question: 'Did a knowledgeable non-expert give it a detailed read-through?', exclusive: true },
-        { code: 'V', name: 'Expert Review', question: 'Did a subject-matter expert (lawyer, PhD, editor, etc.) fact-check or line-edit?', exclusive: true }
-      ]
+      role: {
+        title: 'What job did the AI do?',
+        options: TAGS.role.map(t => ({
+          code: t.code,
+          label: t.label,
+          description: t.question.replace('Did ', '').replace('?', '')
+        }))
+      },
+      data: {
+        title: 'What sources were given?',
+        allowMultiple: true,
+        options: TAGS.data.map(t => ({
+          code: t.code,
+          label: t.label,
+          description: t.question.replace('Did ', '').replace('?', ''),
+          exclusive: t.exclusive
+        }))
+      },
+      method: {
+        title: 'How was the AI used?',
+        options: TAGS.method.map(t => ({
+          code: t.code,
+          label: t.label,
+          description: t.question.replace('Did ', '').replace('?', '')
+        }))
+      },
+      review: {
+        title: 'How was the output reviewed?',
+        allowMultiple: true,
+        options: TAGS.review.map(t => ({
+          code: t.code,
+          label: t.label,
+          description: t.question.replace('Did ', '').replace('?', '')
+        }))
+      }
     };
 
-    // Build inputs
-    Object.entries(TAGS).forEach(([g,arr])=>{
-      const fs=document.getElementById(`${g}-group`);
-      arr.forEach(t=>{
-        const inputType = g === 'data' ? (t.type || 'checkbox') : (g === 'review' ? 'radio' : 'checkbox');
-        const nameAttr = g === 'data' && t.type === 'radio' ? 'data-exclusive' : g;
-        fs.insertAdjacentHTML('beforeend',`<label><input id="${g}-${t.code}" type="${inputType}" name="${nameAttr}" value="${t.code}">${t.code} ${t.label}</label>`);
+    Object.entries(TAGS).forEach(([group, arr]) => {
+      const fieldset = document.getElementById(`${group}-group`);
+      const legend = fieldset.querySelector('legend');
+      fieldset.innerHTML = '';
+      fieldset.appendChild(legend);
+
+      const cardsContainer = document.createElement('div');
+      cardsContainer.className = 'option-cards';
+
+      arr.forEach(tag => {
+        let inputType = 'radio';
+        let inputName = group;
+
+        if (group === 'data' && !tag.exclusive) {
+          inputType = 'checkbox';
+          inputName = 'data-inclusive';
+        } else if (group === 'review') {
+          inputType = 'checkbox';
+          inputName = 'review-multi';
+        }
+
+        const card = document.createElement('label');
+        card.className = 'option-card';
+        card.innerHTML = `
+          <input type="${inputType}" name="${inputName}" value="${tag.code}" 
+                 id="${group}-${tag.code}" ${tag.exclusive ? 'data-exclusive="true"' : ''}>
+          <div class="card-content">
+            <div class="card-header">
+              <span class="code">${tag.code}</span>
+              <span class="label">${tag.label}</span>
+            </div>
+            <div class="help-text">${tag.question}</div>
+          </div>
+        `;
+        cardsContainer.appendChild(card);
       });
+
+      fieldset.appendChild(cardsContainer);
     });
 
-    // Data section exclusivity handling
     document.getElementById('data-group').addEventListener('change', (e) => {
-      if (e.target.name === 'data-exclusive') {
-        document.querySelectorAll('#data-group input[type="checkbox"]').forEach(cb => cb.checked = false);
-      } else if (e.target.type === 'checkbox' && e.target.checked) {
-        document.querySelectorAll('#data-group input[type="radio"]').forEach(rb => rb.checked = false);
+      const target = e.target;
+
+      if (target.dataset.exclusive === 'true' && target.checked) {
+        document.querySelectorAll('#data-group input[type="checkbox"]').forEach(cb => {
+          cb.checked = false;
+          cb.disabled = true;
+        });
+        document.querySelectorAll('#data-group input[data-exclusive="true"]').forEach(radio => {
+          if (radio !== target) {
+            radio.checked = false;
+          }
+          radio.disabled = false;
+        });
+      } else if (target.type === 'checkbox' && target.checked) {
+        document.querySelectorAll('#data-group input[data-exclusive="true"]').forEach(radio => {
+          radio.checked = false;
+          radio.disabled = true;
+        });
+        document.querySelectorAll('#data-group input[type="checkbox"]').forEach(cb => {
+          cb.disabled = false;
+        });
+      } else if (!document.querySelector('#data-group input:checked')) {
+        document.querySelectorAll('#data-group input').forEach(input => {
+          input.disabled = false;
+        });
       }
+
       paint();
     });
 
@@ -1144,130 +1238,98 @@
     window.loadAIModels = loadAIModels;
     window.openWizard = openWizard;
     window.closeWizard = closeWizard;
-    window.startWizard = startWizard;
-    window.answerQuestion = answerQuestion;
-    window.finishWizard = finishWizard;
+    window.applyWizardStep = applyWizardStep;
 
-    // Wizard Functions
     function openWizard(section) {
       currentWizardSection = section;
-      wizardQuestions = WIZARD_DATA[section];
-      currentQuestionIndex = 0;
-      wizardAnswers = [];
-      
       document.getElementById('wizard-modal').style.display = 'flex';
       document.getElementById('wizard-title').textContent = `TRACE Helper: ${section.charAt(0).toUpperCase() + section.slice(1)}`;
-      
-      // Reset modal state
-      document.getElementById('wizard-intro').style.display = 'block';
-      document.getElementById('wizard-question').style.display = 'none';
-      document.getElementById('wizard-complete').style.display = 'none';
-      document.getElementById('wizard-start').style.display = 'inline-flex';
-      document.getElementById('wizard-finish').style.display = 'none';
+      showWizardStep();
     }
 
     function closeWizard() {
       document.getElementById('wizard-modal').style.display = 'none';
     }
 
-    function startWizard() {
-      document.getElementById('wizard-intro').style.display = 'none';
-      document.getElementById('wizard-start').style.display = 'none';
-      document.getElementById('wizard-question').style.display = 'block';
-      
-      showCurrentQuestion();
-    }
+    function showWizardStep() {
+      const step = WIZARD_DATA[currentWizardSection];
+      const modalBody = document.getElementById('wizard-question');
 
-    function showCurrentQuestion() {
-      const question = wizardQuestions[currentQuestionIndex];
-      document.getElementById('question-number').textContent = currentQuestionIndex + 1;
-      document.getElementById('total-questions').textContent = wizardQuestions.length;
-      document.getElementById('current-tag').textContent = question.code;
-      document.getElementById('current-tag-name').textContent = question.name;
-      document.getElementById('question-text').textContent = question.question;
-    }
+      modalBody.innerHTML = `
+        <h3>${step.title}</h3>
+        <div class="wizard-options">
+          ${step.options.map(opt => `
+            <label class="wizard-option">
+              <input type="${step.allowMultiple ? 'checkbox' : 'radio'}" 
+                     name="wizard-${currentWizardSection}" 
+                     value="${opt.code}" ${opt.exclusive ? 'data-exclusive="true"' : ''}>
+              <div class="wizard-option-content">
+                <strong>${opt.label}</strong>
+                <span>${opt.description}</span>
+              </div>
+            </label>
+          `).join('')}
+        </div>
+        <button class="button" onclick="applyWizardStep()">
+          Next →
+        </button>
+      `;
 
-    function answerQuestion(answer) {
-      const question = wizardQuestions[currentQuestionIndex];
-      wizardAnswers.push({
-        code: question.code,
-        name: question.name,
-        answer: answer,
-        exclusive: question.exclusive || false
-      });
-      
-      currentQuestionIndex++;
-      
-      if (currentQuestionIndex < wizardQuestions.length) {
-        showCurrentQuestion();
-      } else {
-        showResults();
+      if (currentWizardSection === 'data') {
+        modalBody.querySelector('.wizard-options').addEventListener('change', (e) => {
+          const target = e.target;
+          if (target.dataset.exclusive === 'true' && target.checked) {
+            modalBody.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+              cb.checked = false;
+              cb.disabled = true;
+            });
+            modalBody.querySelectorAll('input[data-exclusive="true"]').forEach(rb => {
+              rb.disabled = false;
+              if (rb !== target) rb.checked = false;
+            });
+          } else if (target.type === 'checkbox' && target.checked) {
+            modalBody.querySelectorAll('input[data-exclusive="true"]').forEach(rb => {
+              rb.checked = false;
+              rb.disabled = true;
+            });
+            modalBody.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.disabled = false);
+          } else if (!modalBody.querySelector('input:checked')) {
+            modalBody.querySelectorAll('input').forEach(inp => inp.disabled = false);
+          }
+        });
       }
     }
 
-    function showResults() {
-      document.getElementById('wizard-question').style.display = 'none';
-      document.getElementById('wizard-complete').style.display = 'block';
-      document.getElementById('wizard-finish').style.display = 'inline-flex';
-      
-      // Show selected tags
-      const selectedTags = wizardAnswers.filter(a => a.answer).map(a => `${a.code} - ${a.name}`);
-      const tagsContainer = document.getElementById('selected-tags');
-      tagsContainer.innerHTML = selectedTags.map(tag => `<span class="selected-tag">${tag}</span>`).join('');
-      
-      if (selectedTags.length === 0) {
-        tagsContainer.innerHTML = '<p style="color: #6b7280; margin: 0;">No tags selected based on your answers.</p>';
-      }
-    }
+    function applyWizardStep() {
+      const selections = [...document.querySelectorAll(`#wizard-question input:checked`)].map(i => i.value);
 
-    function finishWizard() {
-      // Apply the wizard results to the form
-      applyWizardResults();
-      closeWizard();
-    }
-
-    function applyWizardResults() {
-      const section = currentWizardSection;
-      const yesAnswers = wizardAnswers.filter(a => a.answer);
-      
-      // Clear existing selections for this section
-      document.querySelectorAll(`#${section}-group input`).forEach(input => {
+      const fieldset = document.getElementById(`${currentWizardSection}-group`);
+      fieldset.querySelectorAll('input').forEach(input => {
         input.checked = false;
+        input.disabled = false;
       });
-      
-      // Handle exclusive selections (data and review sections)
-      if (section === 'data') {
-        const exclusiveAnswers = yesAnswers.filter(a => a.exclusive);
-        const nonExclusiveAnswers = yesAnswers.filter(a => !a.exclusive);
-        
-        if (exclusiveAnswers.length > 0) {
-          // Use the first exclusive answer (T or U)
-          const selected = exclusiveAnswers[0];
-          const input = document.querySelector(`input[name="data-exclusive"][value="${selected.code}"]`);
+
+      if (currentWizardSection === 'data') {
+        const exclusiveSelected = selections.find(code => TAGS.data.find(t => t.code === code)?.exclusive);
+        if (exclusiveSelected) {
+          const input = document.querySelector(`#data-group input[value="${exclusiveSelected}"]`);
           if (input) input.checked = true;
         } else {
-          // Use non-exclusive answers (P and/or I)
-          nonExclusiveAnswers.forEach(answer => {
-            const input = document.getElementById(`${section}-${answer.code}`);
+          selections.forEach(code => {
+            const input = document.querySelector(`#data-group input[value="${code}"]`);
             if (input) input.checked = true;
           });
         }
-      } else if (section === 'review') {
-        // Review is single choice - use the first yes answer
-        if (yesAnswers.length > 0) {
-          const selected = yesAnswers[0];
-          const input = document.getElementById(`${section}-${selected.code}`);
-          if (input) input.checked = true;
-        }
+        const first = document.querySelector('#data-group input:checked');
+        if (first) first.dispatchEvent(new Event('change', { bubbles: true }));
       } else {
-        // Role and method allow multiple selections
-        yesAnswers.forEach(answer => {
-          const input = document.getElementById(`${section}-${answer.code}`);
+        selections.forEach(code => {
+          const input = document.querySelector(`#${currentWizardSection}-group input[value="${code}"]`);
           if (input) input.checked = true;
         });
       }
-      
-      // Update the badge
+
+      closeWizard();
       paint();
     }
 
@@ -1500,18 +1562,19 @@
 
     function paint(){
       const getChecked = g => [...document.querySelectorAll(`#${g}-group input:checked`)].map(i=>i.value);
-      
+
       const roles=getChecked('role');
       const data=getChecked('data');
       const methods=getChecked('method');
-      const review=(document.querySelector('#review-group input:checked')||{}).value||'';
+      const review=getChecked('review');
 
       fill('role',roles);
       fill('data',data);
       fill('method',methods);
-      fill('review',review?[review]:[]);
+      fill('review',review);
 
       updateCitation();
+      calculateTrustLevel();
     }
 
     function fill(slot, codes){
@@ -1530,41 +1593,57 @@
       }, 0);
     }
 
-    function updateCitation() {
-      const citationDiv = document.getElementById('citation-content');
-      
-      const getChecked = g => [...document.querySelectorAll(`#${g}-group input:checked`)].map(i=>i.value);
-      const roles = getChecked('role');
-      const data = getChecked('data');
-      const methods = getChecked('method');
-      const review = (document.querySelector('#review-group input:checked')||{}).value||'';
-      
-      const roleText = roles.map(r => TAGS.role.find(t => t.code === r)?.label).filter(Boolean).join(', ');
-      const dataText = data.map(d => TAGS.data.find(t => t.code === d)?.label).filter(Boolean).join(', ');
-      const methodText = methods.map(m => TAGS.method.find(t => t.code === m)?.label).filter(Boolean).join(', ');
-      const reviewText = review ? TAGS.review.find(t => t.code === review)?.label || '' : '';
-      
-      let modelText;
-      if (selectedModels.length === 0) {
-        modelText = 'Not specified';
-      } else if (selectedModels.length === 1) {
-        const provider = selectedModels[0].id.split('/')[0];
-        modelText = `${provider}/${selectedModels[0].name}`;
-      } else {
-        modelText = selectedModels.map(m => {
-          const provider = m.id.split('/')[0];
-          return `${provider}/${m.name}`;
-        }).join(', ');
-      }
-      
-      const today = new Date().toISOString().split('T')[0];
-      const traceCode = `${roles.join('')}–${data.join('')}–${methods.join('')}–${review}`;
-      
-      const citation = `AI-usage disclosure. Generated on ${today}. Model${selectedModels.length > 1 ? 's' : ''}: ${modelText}. 
-TRACE code ROLE–DATA–METHOD–REVIEW = ${traceCode}. 
-Role: ${roleText || 'Not specified'}. Data: ${dataText || 'Not specified'}. Method: ${methodText || 'Not specified'}. Review: ${reviewText || 'Not specified'}.`;
+    function calculateTrustLevel() {
+      const role = document.querySelector('input[name="role"]:checked')?.value;
+      const data = [...document.querySelectorAll('#data-group input:checked')].map(i => i.value);
+      const method = document.querySelector('input[name="method"]:checked')?.value;
+      const review = [...document.querySelectorAll('input[name="review-multi"]:checked')].map(i => i.value);
 
-      citationDiv.textContent = citation;
+      let trustScore = 50;
+
+      if (role === 'A') trustScore += 20;
+      if (role === 'D') trustScore -= 10;
+      if (data.includes('P')) trustScore += 10;
+      if (data.includes('I')) trustScore -= 5;
+      if (data.includes('U')) trustScore -= 15;
+      if (review.includes('U')) trustScore -= 30;
+      if (review.includes('E')) trustScore += 20;
+
+      const badge = document.getElementById('badge');
+      if (trustScore >= 70) {
+        badge.style.boxShadow = '0 0 0 10px #10b981 inset, 0 4px 12px rgba(0,0,0,0.1)';
+      } else if (trustScore >= 40) {
+        badge.style.boxShadow = '0 0 0 10px #f59e0b inset, 0 4px 12px rgba(0,0,0,0.1)';
+      } else {
+        badge.style.boxShadow = '0 0 0 10px #ef4444 inset, 0 4px 12px rgba(0,0,0,0.1)';
+      }
+    }
+
+    function updateCitation() {
+      const role = document.querySelector('input[name="role"]:checked');
+      const data = [...document.querySelectorAll('#data-group input:checked')];
+      const method = document.querySelector('input[name="method"]:checked');
+      const review = [...document.querySelectorAll('input[name="review-multi"]:checked')];
+
+      const roleText = role ? TAGS.role.find(t => t.code === role.value)?.label.toLowerCase() : 'unspecified';
+      const dataText = data.length ? 
+        data.map(d => TAGS.data.find(t => t.code === d.value)?.label.toLowerCase()).join(' and ') : 
+        'unspecified sources';
+      const methodText = method ? TAGS.method.find(t => t.code === method.value)?.label.toLowerCase() : 'unspecified';
+      const reviewText = review.length ? 
+        review.map(r => TAGS.review.find(t => t.code === r.value)?.label.toLowerCase()).join(' and ') : 
+        'unreviewed';
+
+      const traceCode = `${role?.value || ''}–${data.map(d => d.value).join('')}–${method?.value || ''}–${review.map(r => r.value).join('')}`;
+
+      const naturalCitation = `I used AI to ${roleText} with ${dataText} by ${methodText} approach, and the output was ${reviewText}.`;
+
+      const formalCitation = `AI Disclosure (${new Date().toISOString().split('T')[0]})
+TRACE: ${traceCode}
+Role: ${roleText} | Data: ${dataText} | Method: ${methodText} | Review: ${reviewText}
+${selectedModels.length ? 'Models: ' + selectedModels.map(m => m.name).join(', ') : ''}`;
+
+      document.getElementById('citation-content').textContent = formalCitation;
     }
 
     function copyCitation() {
