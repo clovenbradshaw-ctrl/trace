@@ -1,334 +1,622 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TRACE Badge Generator</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNa5kLrBP1ZiZsa1+lZeI7IuAvV38DSHLVYDBlnJrped1IovnEwlHGawEq+y3OC/YLXTr4a9L5xRngRlwe5VrA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <style>
-    :root {
-      --blue:#3b82f6;
-      --green:#10b981;
-      --yellow:#f59e0b;
-      --red:#ef4444;
-      --gray:#e5e7eb;
-    }
-    body {
-      font-family: system-ui, sans-serif;
-      margin:0;
-      background:#f8fafc;
-      color:#334155;
-    }
-    .header {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:1rem;
-      background:white;
-      border-bottom:1px solid var(--gray);
-    }
-    .header-title {
-      margin:0;
-      font-size:1.5rem;
-    }
-    .subtitle {
-      margin:0;
-      font-size:0.9rem;
-      color:#64748b;
-    }
-    .header-left { display:flex; flex-direction:column; }
-    .help-btn {
-      border:1px solid var(--gray);
-      background:white;
-      border-radius:50%;
-      width:2rem; height:2rem;
-      font-weight:bold;
-      cursor:pointer;
-    }
-    .main-container {
-      display:grid;
-      grid-template-columns:minmax(300px,1fr) minmax(400px,1.5fr) minmax(300px,1fr);
-      gap:1rem;
-      max-width:1400px;
-      margin:0 auto;
-      padding:1rem;
-    }
-    .left-panel, .center-panel, .right-panel {background:white; padding:1rem; border:1px solid var(--gray); border-radius:8px;}
-    fieldset {border:1px solid var(--gray); border-left-width:4px; border-radius:4px; margin-bottom:1rem;}
-    legend {padding:0 0.5rem; font-weight:600;}
-    .quadrant.role {border-left-color:var(--blue);} 
-    .quadrant.data {border-left-color:var(--green);} 
-    .quadrant.method {border-left-color:var(--yellow);} 
-    .quadrant.review {border-left-color:var(--red);} 
-    .options {display:flex; flex-direction:column; gap:0.5rem;}
-    .selection-card {border:1px solid var(--gray); border-radius:6px;}
-    .selection-card input {display:none;}
-    .selection-card label {display:flex; gap:0.5rem; padding:0.5rem; cursor:pointer; align-items:center;}
-    .selection-card .code {font-weight:bold; font-size:1.1rem; width:1.5rem; text-align:center;}
-    .selection-card input:checked + label {border:2px solid var(--blue); background:#eff6ff;}
-    .selection-card small {color:#64748b;}
-    .badge {width:400px; height:400px; border-radius:50%; border:8px solid var(--gray); display:flex; align-items:center; justify-content:center; font-size:2rem; background:white; box-shadow:0 0 0 10px #f59e0b inset,0 4px 12px rgba(0,0,0,0.1); transition:box-shadow 0.3s; margin:0 auto;}
-    .style-toggle {text-align:center; margin-top:1rem;}
-    .legend {margin-top:1rem; font-size:0.85rem; line-height:1.4;}
-    .legend div {margin-bottom:0.25rem;}
-    .tabs {display:flex; border-bottom:1px solid var(--gray); margin-bottom:0.5rem;}
-    .tab-button {flex:1; padding:0.5rem; background:none; border:none; cursor:pointer;}
-    .tab-button.active {border-bottom:2px solid var(--blue); font-weight:600;}
-    .tab-panel {display:none; border:1px solid var(--gray); border-top:none; padding:0.5rem; white-space:pre-wrap; min-height:120px;}
-    .tab-panel.active {display:block;}
-    .actions {display:flex; gap:0.5rem; margin-top:1rem; flex-wrap:wrap;}
-    .button {display:inline-flex; gap:0.25rem; align-items:center; padding:0.5rem 1rem; border:none; border-radius:6px; background:var(--blue); color:white; cursor:pointer;}
-    .button.secondary {background:#64748b;}
-    @media (max-width:968px){
-      .main-container {grid-template-columns:1fr; grid-template-rows:auto auto auto;}
-      .center-panel{order:1;} .left-panel{order:2;} .right-panel{order:3;}
-      .badge{width:300px; height:300px;}
-    }
-  </style>
-</head>
-<body>
-  <header class="header">
-    <div class="header-left">
-      <h1 class="header-title">TRACE Badge Generator</h1>
-      <p class="subtitle">Generate and share transparency badges for AI-assisted work</p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TRACE Badge Generator</title>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+      integrity="sha512-BNa5kLrBP1ZiZsa1+lZeI7IuAvV38DSHLVYDBlnJrped1IovnEwlHGawEq+y3OC/YLXTr4a9L5xRngRlwe5VrA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <style>
+      :root {
+        --blue: #3b82f6;
+        --green: #10b981;
+        --yellow: #f59e0b;
+        --red: #ef4444;
+        --gray: #e5e7eb;
+      }
+      body {
+        font-family: system-ui, sans-serif;
+        margin: 0;
+        background: #f8fafc;
+        color: #334155;
+      }
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        background: white;
+        border-bottom: 1px solid var(--gray);
+      }
+      .header-title {
+        margin: 0;
+        font-size: 1.5rem;
+      }
+      .subtitle {
+        margin: 0;
+        font-size: 0.9rem;
+        color: #64748b;
+      }
+      .header-left {
+        display: flex;
+        flex-direction: column;
+      }
+      .help-btn {
+        border: 1px solid var(--gray);
+        background: white;
+        border-radius: 50%;
+        width: 2rem;
+        height: 2rem;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      .main-container {
+        display: grid;
+        grid-template-columns: minmax(300px, 1fr) minmax(400px, 1.5fr) minmax(
+            300px,
+            1fr
+          );
+        gap: 1rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 1rem;
+      }
+      .left-panel,
+      .center-panel,
+      .right-panel {
+        background: white;
+        padding: 1rem;
+        border: 1px solid var(--gray);
+        border-radius: 8px;
+      }
+      fieldset {
+        border: 1px solid var(--gray);
+        border-left-width: 4px;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+      }
+      legend {
+        padding: 0 0.5rem;
+        font-weight: 600;
+      }
+      .quadrant.role {
+        border-left-color: var(--blue);
+      }
+      .quadrant.data {
+        border-left-color: var(--green);
+      }
+      .quadrant.method {
+        border-left-color: var(--yellow);
+      }
+      .quadrant.review {
+        border-left-color: var(--red);
+      }
+      .options {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .selection-card {
+        border: 1px solid var(--gray);
+        border-radius: 6px;
+      }
+      .selection-card input {
+        display: none;
+      }
+      .selection-card label {
+        display: flex;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        cursor: pointer;
+        align-items: center;
+      }
+      .selection-card .code {
+        font-weight: bold;
+        font-size: 1.1rem;
+        width: 1.5rem;
+        text-align: center;
+      }
+      .selection-card input:checked + label {
+        border: 2px solid var(--blue);
+        background: #eff6ff;
+      }
+      .selection-card small {
+        color: #64748b;
+      }
+      .badge-quadrants {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        width: 400px;
+        height: 400px;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        margin: 0 auto;
+      }
+      .quadrant {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        position: relative;
+        color: white;
+        font-weight: bold;
+        text-align: center;
+      }
+      #quad-data {
+        grid-column: 2;
+        grid-row: 1;
+        background: #06b6d4;
+      }
+      #quad-role {
+        grid-column: 1;
+        grid-row: 1;
+        background: #22c55e;
+      }
+      #quad-method {
+        grid-column: 1;
+        grid-row: 2;
+        background: #f97316;
+      }
+      #quad-review {
+        grid-column: 2;
+        grid-row: 2;
+        background: #8b5cf6;
+      }
+      .trace-code {
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-top: 0.5rem;
+      }
+      .style-toggle {
+        text-align: center;
+        margin-top: 1rem;
+      }
+      .legend {
+        margin-top: 1rem;
+        font-size: 0.85rem;
+        line-height: 1.4;
+      }
+      .legend div {
+        margin-bottom: 0.25rem;
+      }
+      .tabs {
+        display: flex;
+        border-bottom: 1px solid var(--gray);
+        margin-bottom: 0.5rem;
+      }
+      .tab-button {
+        flex: 1;
+        padding: 0.5rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+      .tab-button.active {
+        border-bottom: 2px solid var(--blue);
+        font-weight: 600;
+      }
+      .tab-panel {
+        display: none;
+        border: 1px solid var(--gray);
+        border-top: none;
+        padding: 0.5rem;
+        white-space: pre-wrap;
+        min-height: 120px;
+      }
+      .tab-panel.active {
+        display: block;
+      }
+      .actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+      }
+      .button {
+        display: inline-flex;
+        gap: 0.25rem;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 6px;
+        background: var(--blue);
+        color: white;
+        cursor: pointer;
+      }
+      .button.secondary {
+        background: #64748b;
+      }
+      @media (max-width: 968px) {
+        .main-container {
+          grid-template-columns: 1fr;
+          grid-template-rows: auto auto auto;
+        }
+        .center-panel {
+          order: 1;
+        }
+        .left-panel {
+          order: 2;
+        }
+        .right-panel {
+          order: 3;
+        }
+        .badge-quadrants {
+          width: 300px;
+          height: 300px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="header-left">
+        <h1 class="header-title">TRACE Badge Generator</h1>
+        <p class="subtitle">
+          Generate and share transparency badges for AI-assisted work
+        </p>
+      </div>
+      <button class="help-btn" title="Quick Start Guide">?</button>
+    </header>
+    <div class="main-container">
+      <section class="left-panel">
+        <fieldset class="quadrant role" id="role-group">
+          <legend>Role</legend>
+          <div class="options">
+            <div class="selection-card">
+              <input type="radio" id="role-assist" name="role" value="A" />
+              <label for="role-assist">
+                <span class="code">A</span>
+                <div class="text">
+                  <strong>Assist</strong
+                  ><small> Clean up grammar & style</small>
+                </div>
+              </label>
+            </div>
+            <div class="selection-card">
+              <input type="radio" id="role-draft" name="role" value="D" />
+              <label for="role-draft">
+                <span class="code">D</span>
+                <div class="text">
+                  <strong>Draft</strong><small> Wrote first draft</small>
+                </div>
+              </label>
+            </div>
+            <div class="selection-card">
+              <input type="radio" id="role-create" name="role" value="C" />
+              <label for="role-create">
+                <span class="code">C</span>
+                <div class="text">
+                  <strong>Create</strong><small> Generate new content</small>
+                </div>
+              </label>
+            </div>
+          </div>
+        </fieldset>
+        <fieldset class="quadrant data" id="data-group">
+          <legend>Data</legend>
+          <div class="options">
+            <div class="selection-card">
+              <input type="checkbox" id="data-public" name="data" value="P" />
+              <label for="data-public">
+                <span class="code">P</span>
+                <div class="text">
+                  <strong>Public</strong><small> Public or user provided</small>
+                </div>
+              </label>
+            </div>
+            <div class="selection-card">
+              <input type="checkbox" id="data-internal" name="data" value="I" />
+              <label for="data-internal">
+                <span class="code">I</span>
+                <div class="text">
+                  <strong>Internal</strong><small> Private sources</small>
+                </div>
+              </label>
+            </div>
+            <div class="selection-card">
+              <input type="checkbox" id="data-unclear" name="data" value="U" />
+              <label for="data-unclear">
+                <span class="code">U</span>
+                <div class="text">
+                  <strong>Unclear</strong><small> Source unknown</small>
+                </div>
+              </label>
+            </div>
+          </div>
+        </fieldset>
+        <fieldset class="quadrant method" id="method-group">
+          <legend>Method</legend>
+          <div class="options">
+            <div class="selection-card">
+              <input type="radio" id="method-guided" name="method" value="G" />
+              <label for="method-guided">
+                <span class="code">G</span>
+                <div class="text">
+                  <strong>Guided</strong><small> Step-by-step prompts</small>
+                </div>
+              </label>
+            </div>
+            <div class="selection-card">
+              <input type="radio" id="method-raw" name="method" value="R" />
+              <label for="method-raw">
+                <span class="code">R</span>
+                <div class="text">
+                  <strong>Raw</strong><small> First answer</small>
+                </div>
+              </label>
+            </div>
+          </div>
+        </fieldset>
+        <fieldset class="quadrant review" id="review-group">
+          <legend>Review</legend>
+          <div class="options">
+            <div class="selection-card">
+              <input
+                type="checkbox"
+                id="review-skimmed"
+                name="review"
+                value="S"
+              />
+              <label for="review-skimmed">
+                <span class="code">S</span>
+                <div class="text">
+                  <strong>Skimmed</strong><small> Quick read</small>
+                </div>
+              </label>
+            </div>
+            <div class="selection-card">
+              <input
+                type="checkbox"
+                id="review-expert"
+                name="review"
+                value="E"
+              />
+              <label for="review-expert">
+                <span class="code">E</span>
+                <div class="text">
+                  <strong>Expert</strong><small> Expert reviewed</small>
+                </div>
+              </label>
+            </div>
+          </div>
+        </fieldset>
+      </section>
+      <section class="center-panel">
+        <div id="badge" class="badge-quadrants">
+          <div class="quadrant" id="quad-role" data-position="II">
+            <span class="code"></span>
+            <span class="label">Role</span>
+          </div>
+          <div class="quadrant" id="quad-data" data-position="I">
+            <span class="code"></span>
+            <span class="label">Data</span>
+          </div>
+          <div class="quadrant" id="quad-method" data-position="III">
+            <span class="code"></span>
+            <span class="label">Method</span>
+          </div>
+          <div class="quadrant" id="quad-review" data-position="IV">
+            <span class="code"></span>
+            <span class="label">Review</span>
+          </div>
+        </div>
+        <div class="trace-code">TRACE</div>
+        <div class="style-toggle">
+          <label
+            ><input type="radio" name="style" value="color" checked />
+            Color</label
+          >
+          <label
+            ><input type="radio" name="style" value="grayscale" />
+            Grayscale</label
+          >
+          <label
+            ><input type="radio" name="style" value="contrast" /> High
+            Contrast</label
+          >
+        </div>
+        <div class="legend" id="legend"></div>
+      </section>
+      <section class="right-panel">
+        <div class="tabs">
+          <button class="tab-button active" data-tab="citation">
+            Citation
+          </button>
+          <button class="tab-button" data-tab="natural">
+            Natural Language
+          </button>
+          <button class="tab-button" data-tab="embed">Embed Code</button>
+        </div>
+        <div class="tab-content">
+          <pre id="tab-citation" class="tab-panel active"></pre>
+          <pre id="tab-natural" class="tab-panel"></pre>
+          <pre id="tab-embed" class="tab-panel"></pre>
+        </div>
+        <div class="actions">
+          <button class="button" id="download-btn" onclick="downloadBadge()">
+            Download PNG
+          </button>
+          <button class="button" onclick="copyCurrent()">Copy Citation</button>
+          <button class="button secondary" onclick="shareLink()">
+            Share Link
+          </button>
+        </div>
+      </section>
     </div>
-    <button class="help-btn" title="Quick Start Guide">?</button>
-  </header>
-  <div class="main-container">
-    <section class="left-panel">
-      <fieldset class="quadrant role" id="role-group">
-        <legend>Role</legend>
-        <div class="options">
-          <div class="selection-card">
-            <input type="radio" id="role-assist" name="role" value="A">
-            <label for="role-assist">
-              <span class="code">A</span>
-              <div class="text"><strong>Assist</strong><small> Clean up grammar & style</small></div>
-            </label>
-          </div>
-          <div class="selection-card">
-            <input type="radio" id="role-draft" name="role" value="D">
-            <label for="role-draft">
-              <span class="code">D</span>
-              <div class="text"><strong>Draft</strong><small> Wrote first draft</small></div>
-            </label>
-          </div>
-          <div class="selection-card">
-            <input type="radio" id="role-create" name="role" value="C">
-            <label for="role-create">
-              <span class="code">C</span>
-              <div class="text"><strong>Create</strong><small> Generate new content</small></div>
-            </label>
-          </div>
-        </div>
-      </fieldset>
-      <fieldset class="quadrant data" id="data-group">
-        <legend>Data</legend>
-        <div class="options">
-          <div class="selection-card">
-            <input type="checkbox" id="data-public" value="P">
-            <label for="data-public">
-              <span class="code">P</span>
-              <div class="text"><strong>Public</strong><small> Public or user provided</small></div>
-            </label>
-          </div>
-          <div class="selection-card">
-            <input type="checkbox" id="data-internal" value="I">
-            <label for="data-internal">
-              <span class="code">I</span>
-              <div class="text"><strong>Internal</strong><small> Private sources</small></div>
-            </label>
-          </div>
-          <div class="selection-card">
-            <input type="checkbox" id="data-unclear" value="U">
-            <label for="data-unclear">
-              <span class="code">U</span>
-              <div class="text"><strong>Unclear</strong><small> Source unknown</small></div>
-            </label>
-          </div>
-        </div>
-      </fieldset>
-      <fieldset class="quadrant method" id="method-group">
-        <legend>Method</legend>
-        <div class="options">
-          <div class="selection-card">
-            <input type="radio" id="method-guided" name="method" value="G">
-            <label for="method-guided">
-              <span class="code">G</span>
-              <div class="text"><strong>Guided</strong><small> Step-by-step prompts</small></div>
-            </label>
-          </div>
-          <div class="selection-card">
-            <input type="radio" id="method-raw" name="method" value="R">
-            <label for="method-raw">
-              <span class="code">R</span>
-              <div class="text"><strong>Raw</strong><small> First answer</small></div>
-            </label>
-          </div>
-        </div>
-      </fieldset>
-      <fieldset class="quadrant review" id="review-group">
-        <legend>Review</legend>
-        <div class="options">
-          <div class="selection-card">
-            <input type="checkbox" id="review-skimmed" value="S">
-            <label for="review-skimmed">
-              <span class="code">S</span>
-              <div class="text"><strong>Skimmed</strong><small> Quick read</small></div>
-            </label>
-          </div>
-          <div class="selection-card">
-            <input type="checkbox" id="review-expert" value="E">
-            <label for="review-expert">
-              <span class="code">E</span>
-              <div class="text"><strong>Expert</strong><small> Expert reviewed</small></div>
-            </label>
-          </div>
-        </div>
-      </fieldset>
-    </section>
-    <section class="center-panel">
-      <div id="badge" class="badge">TRACE</div>
-      <div class="style-toggle">
-        <label><input type="radio" name="style" value="color" checked> Color</label>
-        <label><input type="radio" name="style" value="grayscale"> Grayscale</label>
-        <label><input type="radio" name="style" value="contrast"> High Contrast</label>
-      </div>
-      <div class="legend" id="legend"></div>
-    </section>
-    <section class="right-panel">
-      <div class="tabs">
-        <button class="tab-button active" data-tab="citation">Citation</button>
-        <button class="tab-button" data-tab="natural">Natural Language</button>
-        <button class="tab-button" data-tab="embed">Embed Code</button>
-      </div>
-      <div class="tab-content">
-        <pre id="tab-citation" class="tab-panel active"></pre>
-        <pre id="tab-natural" class="tab-panel"></pre>
-        <pre id="tab-embed" class="tab-panel"></pre>
-      </div>
-      <div class="actions">
-        <button class="button" id="download-btn" onclick="downloadBadge()">Download PNG</button>
-        <button class="button" onclick="copyCurrent()">Copy Citation</button>
-        <button class="button secondary" onclick="shareLink()">Share Link</button>
-      </div>
-    </section>
-  </div>
-  <script>
-    const TAGS = {
-      role:[
-        {code:'A',label:'Assist',desc:'Clean up grammar & style'},
-        {code:'D',label:'Draft',desc:'Wrote first draft'},
-        {code:'C',label:'Create',desc:'Generate new content'}
-      ],
-      data:[
-        {code:'P',label:'Public',desc:'Public or user provided'},
-        {code:'I',label:'Internal',desc:'Private sources'},
-        {code:'U',label:'Unclear',desc:'Source unknown'}
-      ],
-      method:[
-        {code:'G',label:'Guided',desc:'Step-by-step prompts'},
-        {code:'R',label:'Raw',desc:'First answer'}
-      ],
-      review:[
-        {code:'S',label:'Skimmed',desc:'Quick read'},
-        {code:'E',label:'Expert',desc:'Expert reviewed'}
-      ]
-    };
+    <script>
+      const TAGS = {
+        role: [
+          { code: "A", label: "Assist", desc: "Clean up grammar & style" },
+          { code: "D", label: "Draft", desc: "Wrote first draft" },
+          { code: "C", label: "Create", desc: "Generate new content" },
+        ],
+        data: [
+          { code: "P", label: "Public", desc: "Public or user provided" },
+          { code: "I", label: "Internal", desc: "Private sources" },
+          { code: "U", label: "Unclear", desc: "Source unknown" },
+        ],
+        method: [
+          { code: "G", label: "Guided", desc: "Step-by-step prompts" },
+          { code: "R", label: "Raw", desc: "First answer" },
+        ],
+        review: [
+          { code: "S", label: "Skimmed", desc: "Quick read" },
+          { code: "E", label: "Expert", desc: "Expert reviewed" },
+        ],
+      };
 
-    function updateBadge(){
-      const role=document.querySelector('input[name="role"]:checked');
-      const data=[...document.querySelectorAll('#data-group input:checked')];
-      const method=document.querySelector('input[name="method"]:checked');
-      const review=[...document.querySelectorAll('#review-group input:checked')];
-      const traceCode=`${role?role.value:''}-${data.map(d=>d.value).join('')}-${method?method.value:''}-${review.map(r=>r.value).join('')}`;
-      const badge=document.getElementById('badge');
-      badge.textContent=traceCode||'TRACE';
-      let trust=50;
-      if(role&&role.value==='A') trust+=20;
-      if(role&&role.value==='D') trust-=10;
-      if(data.find(d=>d.value==='P')) trust+=10;
-      if(data.find(d=>d.value==='I')) trust-=5;
-      if(data.find(d=>d.value==='U')) trust-=15;
-      if(review.find(r=>r.value==='U')) trust-=30;
-      if(review.find(r=>r.value==='E')) trust+=20;
-      if(trust>=70) badge.style.boxShadow='0 0 0 10px var(--green) inset,0 4px 12px rgba(0,0,0,0.1)';
-      else if(trust>=40) badge.style.boxShadow='0 0 0 10px var(--yellow) inset,0 4px 12px rgba(0,0,0,0.1)';
-      else badge.style.boxShadow='0 0 0 10px var(--red) inset,0 4px 12px rgba(0,0,0,0.1)';
-      updateOutputs(role,data,method,review,traceCode);
-    }
+      function updateBadge() {
+        const role = document.querySelector('input[name="role"]:checked');
+        const data = [
+          ...document.querySelectorAll('input[name="data"]:checked'),
+        ];
+        const method = document.querySelector('input[name="method"]:checked');
+        const review = [
+          ...document.querySelectorAll('input[name="review"]:checked'),
+        ];
+        const roleCode = role ? role.value : "";
+        const dataCode = data.map((d) => d.value).join(",");
+        const methodCode = method ? method.value : "";
+        const reviewCode = review.map((r) => r.value).join(",");
+        const traceCode = `${roleCode}-${dataCode}-${methodCode}-${reviewCode}`;
+        document.querySelector("#quad-role .code").textContent = roleCode;
+        document.querySelector("#quad-data .code").textContent = dataCode;
+        document.querySelector("#quad-method .code").textContent = methodCode;
+        document.querySelector("#quad-review .code").textContent = reviewCode;
+        const badge = document.getElementById("badge");
+        let trust = 50;
+        if (roleCode === "A") trust += 20;
+        if (roleCode === "D") trust -= 10;
+        if (data.find((d) => d.value === "P")) trust += 10;
+        if (data.find((d) => d.value === "I")) trust -= 5;
+        if (data.find((d) => d.value === "U")) trust -= 15;
+        if (review.find((r) => r.value === "E")) trust += 20;
+        if (trust >= 70)
+          badge.style.boxShadow =
+            "0 0 0 10px var(--green) inset,0 4px 12px rgba(0,0,0,0.1)";
+        else if (trust >= 40)
+          badge.style.boxShadow =
+            "0 0 0 10px var(--yellow) inset,0 4px 12px rgba(0,0,0,0.1)";
+        else
+          badge.style.boxShadow =
+            "0 0 0 10px var(--red) inset,0 4px 12px rgba(0,0,0,0.1)";
+        document.querySelector(".trace-code").textContent =
+          traceCode || "TRACE";
+        updateOutputs(role, data, method, review, traceCode);
+      }
 
-    function updateOutputs(role,data,method,review,traceCode){
-      const roleText=role?TAGS.role.find(t=>t.code===role.value).label.toLowerCase():'unspecified';
-      const dataText=data.length?data.map(d=>TAGS.data.find(t=>t.code===d.value).label.toLowerCase()).join(' and '):'unspecified sources';
-      const methodText=method?TAGS.method.find(t=>t.code===method.value).label.toLowerCase():'unspecified';
-      const reviewText=review.length?review.map(r=>TAGS.review.find(t=>t.code===r.value).label.toLowerCase()).join(' and '):'unreviewed';
-      const natural=`I used AI to ${roleText} with ${dataText} by ${methodText} approach, and the output was ${reviewText}.`;
-      const formal=`AI Disclosure (${new Date().toISOString().split('T')[0]})\nTRACE: ${traceCode}\nRole: ${roleText} | Data: ${dataText} | Method: ${methodText} | Review: ${reviewText}`;
-      const embed=`<img src="trace-badge.png" alt="TRACE badge ${traceCode}">`;
-      document.getElementById('tab-natural').textContent=natural;
-      document.getElementById('tab-citation').textContent=formal;
-      document.getElementById('tab-embed').textContent=embed;
-    }
+      function updateOutputs(role, data, method, review, traceCode) {
+        const roleText = role
+          ? TAGS.role.find((t) => t.code === role.value).label.toLowerCase()
+          : "unspecified";
+        const dataText = data.length
+          ? data
+              .map((d) =>
+                TAGS.data.find((t) => t.code === d.value).label.toLowerCase(),
+              )
+              .join(" and ")
+          : "unspecified sources";
+        const methodText = method
+          ? TAGS.method.find((t) => t.code === method.value).label.toLowerCase()
+          : "unspecified";
+        const reviewText = review.length
+          ? review
+              .map((r) =>
+                TAGS.review.find((t) => t.code === r.value).label.toLowerCase(),
+              )
+              .join(" and ")
+          : "unreviewed";
+        const natural = `I used AI to ${roleText} with ${dataText} by ${methodText} approach, and the output was ${reviewText}.`;
+        const formal = `AI Disclosure (${new Date().toISOString().split("T")[0]})\nTRACE: ${traceCode}\nRole: ${roleText} | Data: ${dataText} | Method: ${methodText} | Review: ${reviewText}`;
+        const embed = `<img src="trace-badge.png" alt="TRACE badge ${traceCode}">`;
+        document.getElementById("tab-natural").textContent = natural;
+        document.getElementById("tab-citation").textContent = formal;
+        document.getElementById("tab-embed").textContent = embed;
+      }
 
-    function renderLegend(){
-      const legend=document.getElementById('legend');
-      legend.innerHTML='';
-      ['role','data','method','review'].forEach(cat=>{
-        TAGS[cat].forEach(t=>{
-          const div=document.createElement('div');
-          div.innerHTML=`<span class="code">${t.code}</span> - ${t.label}`;
-          legend.appendChild(div);
+      function renderLegend() {
+        const legend = document.getElementById("legend");
+        legend.innerHTML = "";
+        ["role", "data", "method", "review"].forEach((cat) => {
+          TAGS[cat].forEach((t) => {
+            const div = document.createElement("div");
+            div.innerHTML = `<span class="code">${t.code}</span> - ${t.label}`;
+            legend.appendChild(div);
+          });
         });
-      });
-    }
+      }
 
-    function setupInputs(){
-      document.querySelectorAll('input').forEach(el=>{
-        el.addEventListener('change',()=>{updateBadge(); updateStyle();});
-      });
-    }
+      function setupInputs() {
+        document.querySelectorAll("input").forEach((el) => {
+          el.addEventListener("change", () => {
+            updateBadge();
+            updateStyle();
+          });
+        });
+      }
 
-    function updateStyle(){
-      const style=document.querySelector('input[name="style"]:checked').value;
-      const badge=document.getElementById('badge');
-      if(style==='grayscale') badge.style.filter='grayscale(1)';
-      else if(style==='contrast') badge.style.filter='contrast(2)';
-      else badge.style.filter='none';
-    }
+      function updateStyle() {
+        const style = document.querySelector(
+          'input[name="style"]:checked',
+        ).value;
+        const badge = document.getElementById("badge");
+        if (style === "grayscale") badge.style.filter = "grayscale(1)";
+        else if (style === "contrast") badge.style.filter = "contrast(2)";
+        else badge.style.filter = "none";
+      }
 
-    function switchTab(e){
-      const tab=e.target.dataset.tab;
-      document.querySelectorAll('.tab-button').forEach(btn=>btn.classList.toggle('active',btn.dataset.tab===tab));
-      document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+tab));
-    }
+      function switchTab(e) {
+        const tab = e.target.dataset.tab;
+        document
+          .querySelectorAll(".tab-button")
+          .forEach((btn) =>
+            btn.classList.toggle("active", btn.dataset.tab === tab),
+          );
+        document
+          .querySelectorAll(".tab-panel")
+          .forEach((p) => p.classList.toggle("active", p.id === "tab-" + tab));
+      }
 
-    function copyCurrent(){
-      const text=document.querySelector('.tab-panel.active').textContent;
-      navigator.clipboard.writeText(text);
-    }
+      function copyCurrent() {
+        const text = document.querySelector(".tab-panel.active").textContent;
+        navigator.clipboard.writeText(text);
+      }
 
-    function shareLink(){
-      navigator.clipboard.writeText(location.href);
-      alert('Link copied to clipboard');
-    }
+      function shareLink() {
+        navigator.clipboard.writeText(location.href);
+        alert("Link copied to clipboard");
+      }
 
-    async function downloadBadge(){
-      const badge=document.getElementById('badge');
-      const canvas=await html2canvas(badge,{scale:3,backgroundColor:null});
-      canvas.toBlob(blob=>{
-        const url=URL.createObjectURL(blob);
-        const a=document.createElement('a');
-        a.href=url; a.download='trace-badge.png';
-        a.click();
-        URL.revokeObjectURL(url);
-      });
-    }
+      async function downloadBadge() {
+        const badge = document.getElementById("badge");
+        const canvas = await html2canvas(badge, {
+          scale: 3,
+          backgroundColor: null,
+        });
+        canvas.toBlob((blob) => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "trace-badge.png";
+          a.click();
+          URL.revokeObjectURL(url);
+        });
+      }
 
-    document.querySelectorAll('.tab-button').forEach(btn=>btn.addEventListener('click',switchTab));
-    renderLegend();
-    setupInputs();
-    updateBadge();
-  </script>
-</body>
+      document
+        .querySelectorAll(".tab-button")
+        .forEach((btn) => btn.addEventListener("click", switchTab));
+      renderLegend();
+      setupInputs();
+      updateBadge();
+    </script>
+  </body>
 </html>
