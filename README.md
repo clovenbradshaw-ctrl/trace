@@ -5,8 +5,7 @@
 A web-based tool for creating transparency badges that disclose AI assistance in creative and professional work.
 
 ## Links
-- **Badge Generator Widget**: [Available here](https://[widget-url])
-- **Source Code**: [GitHub repository](https://[github-url])
+- **Badge Generator Widget**: [Available here](https://clovenbradshaw-ctrl.github.io/trace/)
 
 ## Why TRACE Matters
 
