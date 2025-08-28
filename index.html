@@ -739,40 +739,24 @@
       const group = document.getElementById(groupId);
       if (!group) return;
 
-      group.addEventListener('change', () => {
-        const inputs = group.querySelectorAll('input');
-        const exclusive = [...group.querySelectorAll('input[data-exclusive="true"]')];
-        const nonExclusive = [...group.querySelectorAll('input:not([data-exclusive="true"])')];
-        const checkedExclusive = exclusive.find(i => i.checked);
-        const checkedNonExclusive = nonExclusive.some(i => i.checked);
+      group.addEventListener('change', (e) => {
+        const inputs = [...group.querySelectorAll('input')];
+        const exclusive = inputs.filter(i => i.dataset.exclusive === 'true');
+        const nonExclusive = inputs.filter(i => i.dataset.exclusive !== 'true');
+        const changed = e.target;
 
-        if (checkedExclusive) {
-          nonExclusive.forEach(i => {
-            i.checked = false;
-            i.disabled = true;
-            i.parentElement.classList.remove('selected');
-          });
-          exclusive.forEach(i => {
-            if (i !== checkedExclusive) {
+        if (changed.dataset.exclusive === 'true' && changed.checked) {
+          inputs.forEach(i => {
+            if (i !== changed) {
               i.checked = false;
-              i.disabled = true;
               i.parentElement.classList.remove('selected');
-            } else {
-              i.disabled = false;
             }
           });
-        } else if (checkedNonExclusive) {
+        } else if (changed.dataset.exclusive !== 'true' && changed.checked) {
           exclusive.forEach(i => {
             i.checked = false;
-            i.disabled = true;
             i.parentElement.classList.remove('selected');
           });
-          nonExclusive.forEach(i => {
-            i.disabled = false;
-          });
-        } else {
-          exclusive.forEach(i => { i.disabled = false; });
-          nonExclusive.forEach(i => { i.disabled = false; });
         }
 
         inputs.forEach(i => {
