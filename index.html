@@ -632,6 +632,10 @@
             <input type="checkbox" id="grayscale-mode">
             Grayscale version
           </label>
+          <label>
+            <input type="checkbox" id="transparent-bg" checked>
+            Transparent background
+          </label>
         </div>
 
         <div class="actions">
@@ -1107,12 +1111,17 @@
       document.getElementById('badge').classList.toggle('grayscale', e.target.checked);
     });
 
+    document.getElementById('transparent-bg').addEventListener('change', (e) => {
+      document.getElementById('badge-wrapper').style.background = e.target.checked ? 'transparent' : '#ffffff';
+    });
+
     // Button actions
     async function downloadBadge() {
       const badgeWrapper = document.getElementById('badge-wrapper');
+      const isTransparent = document.getElementById('transparent-bg').checked;
       const canvas = await html2canvas(badgeWrapper, {
         scale: 3,
-        backgroundColor: null,
+        backgroundColor: isTransparent ? null : '#ffffff',
         height: badgeWrapper.offsetHeight + 30
       });
       
