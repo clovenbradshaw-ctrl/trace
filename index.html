@@ -341,6 +341,20 @@
       gap: 1.5rem;
     }
 
+    .badge-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .model-name {
+      margin-top: 12px;
+      font-size: 0.85em;
+      color: #666;
+      font-style: italic;
+      text-align: center;
+    }
+
     .badge {
       width: var(--badge);
       height: var(--badge);
@@ -612,11 +626,14 @@
     <!-- Center Panel: Badge -->
     <div class="panel">
       <div class="badge-container">
-        <div id="badge" class="badge">
-          <div class="cell"><span class="code"></span><span class="label"></span></div>
-          <div class="cell"><span class="code"></span><span class="label"></span></div>
-          <div class="cell"><span class="code"></span><span class="label"></span></div>
-          <div class="cell"><span class="code"></span><span class="label"></span></div>
+        <div id="badge-wrapper" class="badge-wrapper">
+          <div id="badge" class="badge">
+            <div class="cell"><span class="code"></span><span class="label"></span></div>
+            <div class="cell"><span class="code"></span><span class="label"></span></div>
+            <div class="cell"><span class="code"></span><span class="label"></span></div>
+            <div class="cell"><span class="code"></span><span class="label"></span></div>
+          </div>
+          <div id="model-name" class="model-name"></div>
         </div>
 
         <div class="style-options">
@@ -890,7 +907,8 @@
       const traceCode = `${role.map(r => r.value).join('') || '_'}-${data.map(d => d.value).join('') || '_'}-${method.map(m => m.value).join('') || '_'}-${review.map(r => r.value).join('') || '_'}`;
       
       // Build natural language description
-      let naturalText = "I used AI to ";
+      const modelNames = selectedModels.map(m => m.name);
+      let naturalText = `I used AI${modelNames.length ? ` (${modelNames.join(' + ')})` : ''} to `;
       
       if (role.length > 0) {
         const parts = role.map(r => {
@@ -967,32 +985,13 @@
       }
       
       naturalText += ".";
-      
-      if (selectedModels.length > 0) {
-        if (selectedModels.length === 1) {
-          naturalText += ` The AI model used was ${selectedModels[0].name}.`;
-        } else if (selectedModels.length === 2) {
-          naturalText += ` The AI models used were ${selectedModels[0].name} and ${selectedModels[1].name}.`;
-        } else {
-          const lastModel = selectedModels[selectedModels.length - 1];
-          const otherModels = selectedModels.slice(0, -1);
-          naturalText += ` The AI models used were ${otherModels.map(m => m.name).join(', ')}, and ${lastModel.name}.`;
-        }
-      }
-      
+
       // Formal citation
-      let formal = `AI Disclosure (${new Date().toISOString().split('T')[0]})\nTRACE: ${traceCode}\n\n`;
+      let formal = `AI Disclosure (${new Date().toISOString().split('T')[0]})\nTRACE: ${traceCode}${modelNames.length ? ' via ' + modelNames.join(' + ') : ''}\n\n`;
       formal += `Role: ${role.length ? role.map(r => TAGS.role.find(t => t.code === r.value).label).join(', ') : 'Unspecified'}\n`;
       formal += `Data: ${data.length ? data.map(d => TAGS.data.find(t => t.code === d.value).label).join(', ') : 'Unspecified'}\n`;
       formal += `Method: ${method.length ? method.map(m => TAGS.method.find(t => t.code === m.value).label).join(', ') : 'Unspecified'}\n`;
       formal += `Review: ${review.length ? review.map(r => TAGS.review.find(t => t.code === r.value).label).join(', ') : 'None'}`;
-      
-      if (selectedModels.length > 0) {
-        formal += `\n\nAI Models Used:\n`;
-        selectedModels.forEach(m => {
-          formal += `• ${m.name} (${m.id})\n`;
-        });
-      }
       
       document.getElementById('tab-formal').textContent = formal;
       document.getElementById('tab-natural').textContent = naturalText;
@@ -1083,6 +1082,7 @@
       selectedModels.push(model);
       updateSelectedModelsDisplay();
       updateCitation();
+      updateModelNameDisplay();
       
       const searchInput = document.querySelector('.model-search');
       if (searchInput) {
@@ -1113,6 +1113,13 @@
       selectedModels = selectedModels.filter(m => m.id !== modelId);
       updateSelectedModelsDisplay();
       updateCitation();
+      updateModelNameDisplay();
+    }
+
+    function updateModelNameDisplay() {
+      const modelDiv = document.getElementById('model-name');
+      if (!modelDiv) return;
+      modelDiv.textContent = selectedModels.map(m => m.name).join(' + ');
     }
 
     // Citation tab switching
@@ -1137,10 +1144,11 @@
 
     // Button actions
     async function downloadBadge() {
-      const badge = document.getElementById('badge');
-      const canvas = await html2canvas(badge, {
+      const badgeWrapper = document.getElementById('badge-wrapper');
+      const canvas = await html2canvas(badgeWrapper, {
         scale: 3,
-        backgroundColor: null
+        backgroundColor: null,
+        height: badgeWrapper.offsetHeight + 30
       });
       
       canvas.toBlob(blob => {
@@ -1171,6 +1179,7 @@
       initializeOptions();
       setupModelSearch();
       updateBadge();
+      updateModelNameDisplay();
       loadAIModels(); // Auto-load models
     });
   </script>
