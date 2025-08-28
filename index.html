@@ -682,7 +682,7 @@
       review: [
         {code: 'U', label: 'Unreviewed', desc: 'Not checked', exclusive: true},
         {code: 'S', label: 'Skimmed', desc: 'Quick read'},
-        {code: 'P', label: 'Peer', desc: 'Non-expert review'},
+        {code: 'G', label: 'General', desc: 'Non-expert review'},
         {code: 'E', label: 'Expert', desc: 'Expert reviewed'},
         {code: 'A', label: 'AI-Check', desc: 'Self-reviewed'}
       ]
@@ -718,16 +718,16 @@
         single: {
           'U': 'has not been reviewed',
           'S': 'was skimmed quickly',
-          'P': 'underwent peer review',
+          'G': 'underwent general review',
           'E': 'was expert reviewed',
           'A': 'was AI-checked for consistency'
         },
         combinations: {
-          'SP': 'was skimmed and peer reviewed',
+          'SG': 'was skimmed and underwent general review',
           'SE': 'was skimmed and expert reviewed',
-          'PE': 'underwent peer and expert review',
+          'GE': 'underwent general and expert review',
           'SA': 'was skimmed and AI-checked',
-          'SPE': 'was skimmed, peer reviewed, and expert reviewed'
+          'SGE': 'was skimmed, underwent general review, and expert reviewed'
         }
       }
     };
