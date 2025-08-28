@@ -114,10 +114,31 @@
             </label>
           </div>
           <div class="selection-card">
-            <input type="radio" id="role-create" name="role" value="C">
-            <label for="role-create">
+            <input type="radio" id="role-synthesis" name="role" value="S">
+            <label for="role-synthesis">
+              <span class="code">S</span>
+              <div class="text"><strong>Synthesis</strong><small> Combined sources</small></div>
+            </label>
+          </div>
+          <div class="selection-card">
+            <input type="radio" id="role-analysis" name="role" value="N">
+            <label for="role-analysis">
+              <span class="code">N</span>
+              <div class="text"><strong>Analysis</strong><small> Explained patterns</small></div>
+            </label>
+          </div>
+          <div class="selection-card">
+            <input type="radio" id="role-exploratory" name="role" value="E">
+            <label for="role-exploratory">
+              <span class="code">E</span>
+              <div class="text"><strong>Exploratory</strong><small> Experimental testing</small></div>
+            </label>
+          </div>
+          <div class="selection-card">
+            <input type="radio" id="role-creative" name="role" value="C">
+            <label for="role-creative">
               <span class="code">C</span>
-              <div class="text"><strong>Create</strong><small> Generate new content</small></div>
+              <div class="text"><strong>Creative</strong><small> Generated new content</small></div>
             </label>
           </div>
         </div>
@@ -140,6 +161,13 @@
             </label>
           </div>
           <div class="selection-card">
+            <input type="checkbox" id="data-model" value="M">
+            <label for="data-model">
+              <span class="code">M</span>
+              <div class="text"><strong>Model-only</strong><small> No external input</small></div>
+            </label>
+          </div>
+          <div class="selection-card">
             <input type="checkbox" id="data-unclear" value="U">
             <label for="data-unclear">
               <span class="code">U</span>
@@ -152,6 +180,13 @@
         <legend>Method</legend>
         <div class="options">
           <div class="selection-card">
+            <input type="radio" id="method-raw" name="method" value="R">
+            <label for="method-raw">
+              <span class="code">R</span>
+              <div class="text"><strong>Raw</strong><small> First answer</small></div>
+            </label>
+          </div>
+          <div class="selection-card">
             <input type="radio" id="method-guided" name="method" value="G">
             <label for="method-guided">
               <span class="code">G</span>
@@ -159,10 +194,17 @@
             </label>
           </div>
           <div class="selection-card">
-            <input type="radio" id="method-raw" name="method" value="R">
-            <label for="method-raw">
-              <span class="code">R</span>
-              <div class="text"><strong>Raw</strong><small> First answer</small></div>
+            <input type="radio" id="method-rewriter" name="method" value="W">
+            <label for="method-rewriter">
+              <span class="code">W</span>
+              <div class="text"><strong>Rewriter</strong><small> Transformed text</small></div>
+            </label>
+          </div>
+          <div class="selection-card">
+            <input type="radio" id="method-augmented" name="method" value="A">
+            <label for="method-augmented">
+              <span class="code">A</span>
+              <div class="text"><strong>Augmented</strong><small> Used tools</small></div>
             </label>
           </div>
         </div>
@@ -171,6 +213,13 @@
         <legend>Review</legend>
         <div class="options">
           <div class="selection-card">
+            <input type="checkbox" id="review-unreviewed" value="U">
+            <label for="review-unreviewed">
+              <span class="code">U</span>
+              <div class="text"><strong>Unreviewed</strong><small> Not checked</small></div>
+            </label>
+          </div>
+          <div class="selection-card">
             <input type="checkbox" id="review-skimmed" value="S">
             <label for="review-skimmed">
               <span class="code">S</span>
@@ -178,10 +227,24 @@
             </label>
           </div>
           <div class="selection-card">
+            <input type="checkbox" id="review-peer" value="P">
+            <label for="review-peer">
+              <span class="code">P</span>
+              <div class="text"><strong>Peer</strong><small> Non-expert review</small></div>
+            </label>
+          </div>
+          <div class="selection-card">
             <input type="checkbox" id="review-expert" value="E">
             <label for="review-expert">
               <span class="code">E</span>
               <div class="text"><strong>Expert</strong><small> Expert reviewed</small></div>
+            </label>
+          </div>
+          <div class="selection-card">
+            <input type="checkbox" id="review-ai-check" value="A">
+            <label for="review-ai-check">
+              <span class="code">A</span>
+              <div class="text"><strong>AI-Check</strong><small> Self-reviewed</small></div>
             </label>
           </div>
         </div>
@@ -217,22 +280,31 @@
   <script>
     const TAGS = {
       role:[
-        {code:'A',label:'Assist',desc:'Clean up grammar & style'},
-        {code:'D',label:'Draft',desc:'Wrote first draft'},
-        {code:'C',label:'Create',desc:'Generate new content'}
+        {code:'A', label:'Assist', desc:'Clean up grammar & style'},
+        {code:'D', label:'Draft', desc:'Wrote first draft'},
+        {code:'S', label:'Synthesis', desc:'Combined sources'},
+        {code:'N', label:'Analysis', desc:'Explained patterns'},
+        {code:'E', label:'Exploratory', desc:'Experimental testing'},
+        {code:'C', label:'Creative', desc:'Generated new content'}
       ],
       data:[
-        {code:'P',label:'Public',desc:'Public or user provided'},
-        {code:'I',label:'Internal',desc:'Private sources'},
-        {code:'U',label:'Unclear',desc:'Source unknown'}
+        {code:'P', label:'Public', desc:'Public or user provided'},
+        {code:'I', label:'Internal', desc:'Private sources'},
+        {code:'M', label:'Model-only', desc:'No external input'},
+        {code:'U', label:'Unclear', desc:'Source unknown'}
       ],
       method:[
-        {code:'G',label:'Guided',desc:'Step-by-step prompts'},
-        {code:'R',label:'Raw',desc:'First answer'}
+        {code:'R', label:'Raw', desc:'First answer'},
+        {code:'G', label:'Guided', desc:'Step-by-step prompts'},
+        {code:'W', label:'Rewriter', desc:'Transformed text'},
+        {code:'A', label:'Augmented', desc:'Used tools'}
       ],
       review:[
-        {code:'S',label:'Skimmed',desc:'Quick read'},
-        {code:'E',label:'Expert',desc:'Expert reviewed'}
+        {code:'U', label:'Unreviewed', desc:'Not checked'},
+        {code:'S', label:'Skimmed', desc:'Quick read'},
+        {code:'P', label:'Peer', desc:'Non-expert review'},
+        {code:'E', label:'Expert', desc:'Expert reviewed'},
+        {code:'A', label:'AI-Check', desc:'Self-reviewed'}
       ]
     };
 
@@ -249,9 +321,12 @@
       if(role&&role.value==='D') trust-=10;
       if(data.find(d=>d.value==='P')) trust+=10;
       if(data.find(d=>d.value==='I')) trust-=5;
+      if(data.find(d=>d.value==='M')) trust+=5;
       if(data.find(d=>d.value==='U')) trust-=15;
       if(review.find(r=>r.value==='U')) trust-=30;
       if(review.find(r=>r.value==='E')) trust+=20;
+      if(review.find(r=>r.value==='P')) trust+=10;
+      if(review.find(r=>r.value==='A')) trust+=5;
       if(trust>=70) badge.style.boxShadow='0 0 0 10px var(--green) inset,0 4px 12px rgba(0,0,0,0.1)';
       else if(trust>=40) badge.style.boxShadow='0 0 0 10px var(--yellow) inset,0 4px 12px rgba(0,0,0,0.1)';
       else badge.style.boxShadow='0 0 0 10px var(--red) inset,0 4px 12px rgba(0,0,0,0.1)';
