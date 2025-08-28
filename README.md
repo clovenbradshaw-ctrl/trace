@@ -11,7 +11,7 @@ A web-based tool for creating transparency badges that disclose AI assistance in
 
 With AI tools becoming ubiquitous in our workflows, transparency has become critical. Recent findings from BipartisanPolicy.org revealed a significant negative correlation between frequent AI tool usage and critical thinking abilities, mediated by increased cognitive offloading. Younger participants exhibited higher dependence on AI tools and lower critical thinking scores compared to older participants.
 
-Yet virtually nothing we work on doesn't touch, in some way, a large language model. From deep research and analysis to proofreading for typos, from coding assistance to creative generation—AI is everywhere. It feels weird to say "yes, I made this" without acknowledging the AI's role, but it's also clunky to just say "yeah, I used some AI."
+Yet for many of us, virtually nothing we work on doesn't touch, in some way, a large language model. From deep research and analysis to proofreading for typos, from coding assistance to creative generation—AI is everywhere. It feels weird to say "yes, I made this" without acknowledging the AI's role, but it's also clunky to just say "yeah, I used some AI."
 
 TRACE provides a structured, visual way to disclose precisely when and how AI tools contributed to any piece of work.
 
