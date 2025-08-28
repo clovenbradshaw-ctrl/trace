@@ -211,7 +211,8 @@ Review: Peer
 AI Models Used:
 • Anthropic: Claude Opus 4.1 (anthropic/claude-opus-4.1)
 
-I used AI to synthesize information from multiple sources using public sources, through guided prompting. The output underwent peer review. The AI model used was Anthropic: Claude Opus 4.1.
+I used AI to synthesize information from multiple sources using public sources, through guided prompting. 
+The output underwent peer review. The AI model used was Anthropic: Claude Opus 4.1.
 ```
 -------------------------
 
