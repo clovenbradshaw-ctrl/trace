@@ -438,93 +438,19 @@
     gap: 0.75rem;
   }
 
-  .wizard-intro p {
-    color: #6b7280;
-    margin: 0;
-    line-height: 1.6;
-  }
-
-  .wizard-question {
-    text-align: center;
-  }
-
-  .question-progress {
-    background: #f3f4f6;
-    border-radius: 20px;
-    padding: 0.5rem 1rem;
-    font-size: 0.85rem;
-    color: #6b7280;
-    margin-bottom: 1.5rem;
-    display: inline-block;
-  }
-
-  .question-tag {
-    background: #eff6ff;
-    border: 1px solid #dbeafe;
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-    color: #1e40af;
-  }
-
-  .question-text {
-    font-size: 1.1rem;
-    color: #374151;
-    margin-bottom: 2rem;
-    line-height: 1.6;
-    font-style: italic;
-  }
-
-  .question-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-  }
-
-  .wizard-complete {
-    text-align: center;
-  }
-
-  .complete-icon {
-    width: 60px;
-    height: 60px;
-    background: #10b981;
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    margin: 0 auto 1rem;
-  }
-
-  .wizard-complete h4 {
-    color: #10b981;
-    margin: 0 0 0.5rem;
-    font-size: 1.25rem;
-  }
-
-  .wizard-complete p {
-    color: #6b7280;
-    margin: 0 0 1.5rem;
-  }
-
-  .selected-tags {
-    background: #f8fafc;
-    border-radius: 8px;
-    padding: 1rem;
-    border: 1px solid #e2e8f0;
-  }
-
+  .wizard-intro p,
+  .wizard-question,
+  .question-progress,
+  .question-tag,
+  .question-text,
+  .question-actions,
+  .wizard-complete,
+  .complete-icon,
+  .wizard-complete h4,
+  .wizard-complete p,
+  .selected-tags,
   .selected-tag {
-    display: inline-block;
-    background: #3b82f6;
-    color: white;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    margin: 0.25rem;
-    font-weight: 500;
+    display: none;
   }
 
   .loading {
@@ -606,6 +532,56 @@
 
   label input {
     margin-right: 0.5rem;
+  }
+
+  .selection-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .option-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .option-card {
+    display: block;
+    margin: 0;
+  }
+
+  .option-card input {
+    display: none;
+  }
+
+  .option-card .card-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #fff;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .option-card .code {
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  .option-card .help-icon {
+    margin-left: auto;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #64748b;
+  }
+
+  .option-card input:checked + .card-content {
+    border-color: #3b82f6;
+    background: #eff6ff;
   }
 
   /* Citation Section */
@@ -815,7 +791,7 @@
       </div>
 
       <div class="controls">
-        <fieldset id="role-group">
+        <fieldset id="role-group" class="selection-group">
           <legend>
             Role
             <button class="help-btn" onclick="openWizard('role')" title="Get help selecting role">
@@ -826,8 +802,9 @@
               </svg>
             </button>
           </legend>
+          <div class="option-cards"></div>
         </fieldset>
-        <fieldset id="data-group">
+        <fieldset id="data-group" class="selection-group">
           <legend>
             Data
             <button class="help-btn" onclick="openWizard('data')" title="Get help selecting data">
@@ -838,8 +815,10 @@
               </svg>
             </button>
           </legend>
+          <div class="option-cards"></div>
+          <div id="data-warning" class="status-message status-error" style="display:none;"></div>
         </fieldset>
-        <fieldset id="method-group">
+        <fieldset id="method-group" class="selection-group">
           <legend>
             Method
             <button class="help-btn" onclick="openWizard('method')" title="Get help selecting method">
@@ -850,8 +829,9 @@
               </svg>
             </button>
           </legend>
+          <div class="option-cards"></div>
         </fieldset>
-        <fieldset id="review-group">
+        <fieldset id="review-group" class="selection-group">
           <legend>
             Review
             <button class="help-btn" onclick="openWizard('review')" title="Get help selecting review">
@@ -862,6 +842,7 @@
               </svg>
             </button>
           </legend>
+          <div class="option-cards"></div>
         </fieldset>
       </div>
     </div>
@@ -922,127 +903,113 @@
       </div>
       
       <div class="modal-body">
-        <div class="wizard-intro" id="wizard-intro">
-          <p>I'll ask you some simple questions to help you pick the right tags. Just answer "yes" or "no" to each one.</p>
-        </div>
-        
-        <div class="wizard-question" id="wizard-question" style="display: none;">
-          <div class="question-progress">
-            <span id="question-number">1</span> of <span id="total-questions">6</span>
-          </div>
-          <div class="question-tag">
-            <strong><span id="current-tag"></span> – <span id="current-tag-name"></span></strong>
-          </div>
-          <div class="question-text" id="question-text"></div>
-          <div class="question-actions">
-            <button class="button secondary" onclick="answerQuestion(false)">No</button>
-            <button class="button" onclick="answerQuestion(true)">Yes</button>
-          </div>
-        </div>
-
-        <div class="wizard-complete" id="wizard-complete" style="display: none;">
-          <div class="complete-icon">✓</div>
-          <h4>All done!</h4>
-          <p>I've selected the tags that match your answers. You can always adjust them manually if needed.</p>
-          <div class="selected-tags" id="selected-tags"></div>
-        </div>
+        <div id="wizard-options" class="selection-group"></div>
       </div>
-      
+
       <div class="modal-footer">
         <button class="button secondary" onclick="closeWizard()">Cancel</button>
-        <button class="button" id="wizard-start" onclick="startWizard()">Start Questions</button>
-        <button class="button" id="wizard-finish" onclick="finishWizard()" style="display: none;">Finish</button>
+        <button class="button" onclick="finishWizard()">Apply</button>
       </div>
     </div>
   </div>
 
   <script>
     const TAGS = {
-      role:   [ 
-        {code:'E',label:'Editorial Assist'}, 
-        {code:'G',label:'Generated'}, 
-        {code:'S',label:'Synthesis'}, 
-        {code:'A',label:'Analytical'}, 
-        {code:'X',label:'Experimental'}, 
-        {code:'C',label:'Creative'} 
+      role: [
+        {code:'A',label:'Assist'},
+        {code:'D',label:'Draft'},
+        {code:'S',label:'Synth'},
+        {code:'N',label:'Analyze'},
+        {code:'X',label:'Explore'},
+        {code:'C',label:'Create'}
       ],
-      data:   [ 
-        {code:'P',label:'Public Data', type:'checkbox'}, 
-        {code:'I',label:'Internal Data', type:'checkbox'}, 
-        {code:'T',label:'Training‑only', type:'radio'}, 
-        {code:'U',label:'Unknown', type:'radio'} 
+      data: [
+        {code:'P',label:'Public', type:'checkbox'},
+        {code:'I',label:'Internal', type:'checkbox'},
+        {code:'M',label:'Model-only', type:'radio'},
+        {code:'U',label:'Unclear', type:'radio'}
       ],
-      method: [ 
-        {code:'T',label:'Tools'}, 
-        {code:'C',label:'Cited'}, 
-        {code:'F',label:'Reformat'}, 
-        {code:'S',label:'Staged'}, 
-        {code:'E',label:'Self‑Check'}, 
-        {code:'D',label:'1‑Shot'} 
+      method: [
+        {code:'T',label:'Tools'},
+        {code:'C',label:'Cited'},
+        {code:'F',label:'Reformat'},
+        {code:'S',label:'Staged'},
+        {code:'E',label:'Self-Check'},
+        {code:'D',label:'1-Shot'}
       ],
-      review: [ 
-        {code:'U',label:'Unverified'}, 
-        {code:'H',label:'Light Review'}, 
-        {code:'A',label:'Amateur Review'}, 
-        {code:'V',label:'Expert Review'} 
+      review: [
+        {code:'N',label:'Unreviewed', exclusive:true},
+        {code:'A',label:'AI Self-Check'},
+        {code:'P',label:'Peer Review'},
+        {code:'E',label:'Expert Review'}
       ]
     };
 
     let aiModels = [];
     let selectedModels = [];
     let currentWizardSection = '';
-    let wizardQuestions = [];
-    let currentQuestionIndex = 0;
-    let wizardAnswers = [];
 
     // TRACE Wizard Questions
     const WIZARD_DATA = {
       role: [
-        { code: 'E', name: 'Editorial Assist', question: 'Did I use the AI to proof-read, fix grammar, or clean up style?' },
-        { code: 'G', name: 'Generated', question: 'Did the AI draft most or all of the passage, and I left it largely as-is?' },
-        { code: 'S', name: 'Synthesis', question: 'Did I feed the AI several sources and have it combine them into one coherent piece?' },
-        { code: 'A', name: 'Analytical', question: 'Did I ask the AI to crunch numbers, spot patterns, or explain "why" something happens?' },
-        { code: 'X', name: 'Experimental', question: 'Was I exploring or testing what the model can do, with no set goal or format?' },
-        { code: 'C', name: 'Creative', question: 'Did the AI help invent original story lines, characters, jokes, or poetic language?' }
+        { code: 'A', name: 'Assist', question: 'Did I use AI mainly to clean up or polish existing text?' },
+        { code: 'D', name: 'Draft', question: 'Did the AI generate the main content?' },
+        { code: 'S', name: 'Synth', question: 'Did I combine multiple sources I provided?' },
+        { code: 'N', name: 'Analyze', question: 'Did the AI analyze data or explain patterns?' },
+        { code: 'X', name: 'Explore', question: 'Was I exploring what AI could do?' },
+        { code: 'C', name: 'Create', question: 'Did it create something imaginative?' }
       ],
       data: [
-        { code: 'P', name: 'Public Data', question: 'While generating, did I only give it publicly available info (URLs, public docs, my own prompt)?' },
-        { code: 'I', name: 'Internal Data', question: 'Did I paste in anything private or paywalled (draft subscriber email, company sheet, paid database)?' },
-        { code: 'T', name: 'Training-only', question: 'Did I NOT add extra context—just relied on whatever was already baked into the model?', exclusive: true },
-        { code: 'U', name: 'Unknown', question: 'Am I unsure what sources the AI saw for this answer?', exclusive: true }
+        { code: 'P', name: 'Public', question: 'Did I only use public sources?' },
+        { code: 'I', name: 'Internal', question: 'Did I include private or paywalled data?' },
+        { code: 'M', name: 'Model-only', question: 'Did I rely solely on model knowledge without extra context?', exclusive: true },
+        { code: 'U', name: 'Unclear', question: 'Am I unsure what sources the AI used?', exclusive: true }
       ],
       method: [
-        { code: 'T', name: 'Tools', question: 'Did the run also tap a plug-in, code interpreter, browser, or other helper?' },
-        { code: 'C', name: 'Cited', question: 'Did I paste or upload citations the AI had to quote or summarize verbatim?' },
-        { code: 'F', name: 'Reformat', question: 'Was the main job turning existing text into a new shape (outline → essay, bullet list → prose)?' },
-        { code: 'S', name: 'Staged', question: 'Did I break the task into several deliberate steps or chain calls together?' },
-        { code: 'E', name: 'Self-Check', question: 'Did I prompt the AI to critique, grade, or correct its own draft?' },
-        { code: 'D', name: '1-Shot', question: 'Did I fire a single prompt and publish the first complete answer?' }
+        { code: 'T', name: 'Tools', question: 'Did I use plugins or other tools?' },
+        { code: 'C', name: 'Cited', question: 'Did I provide citations the AI quoted?' },
+        { code: 'F', name: 'Reformat', question: 'Was the task mainly reformatting existing text?' },
+        { code: 'S', name: 'Staged', question: 'Did I break the task into steps?' },
+        { code: 'E', name: 'Self-Check', question: 'Did the AI critique its own output?' },
+        { code: 'D', name: '1-Shot', question: 'Did I publish the first answer it gave?' }
       ],
       review: [
-        { code: 'U', name: 'Unverified', question: 'Did no human (including me) read the output carefully before publishing?', exclusive: true },
-        { code: 'H', name: 'Light Review', question: 'Did someone skim for obvious errors or tone issues but not verify every fact?', exclusive: true },
-        { code: 'A', name: 'Amateur Review', question: 'Did a knowledgeable non-expert give it a detailed read-through?', exclusive: true },
-        { code: 'V', name: 'Expert Review', question: 'Did a subject-matter expert (lawyer, PhD, editor, etc.) fact-check or line-edit?', exclusive: true }
+        { code: 'N', name: 'Unreviewed', question: 'Was the output published without review?', exclusive: true },
+        { code: 'A', name: 'AI Self-Check', question: 'Did I have the AI review its own output?' },
+        { code: 'P', name: 'Peer Review', question: 'Did a peer or non-expert review it?' },
+        { code: 'E', name: 'Expert Review', question: 'Did a subject expert review it?' }
       ]
     };
 
     // Build inputs
     Object.entries(TAGS).forEach(([g,arr])=>{
       const fs=document.getElementById(`${g}-group`);
+      const container = fs.querySelector('.option-cards');
       arr.forEach(t=>{
-        const inputType = g === 'data' ? (t.type || 'checkbox') : (g === 'review' ? 'radio' : 'checkbox');
+        const inputType = g === 'data' ? (t.type || 'checkbox') : (g === 'role' || g === 'method' ? 'radio' : 'checkbox');
         const nameAttr = g === 'data' && t.type === 'radio' ? 'data-exclusive' : g;
-        fs.insertAdjacentHTML('beforeend',`<label><input id="${g}-${t.code}" type="${inputType}" name="${nameAttr}" value="${t.code}">${t.code} ${t.label}</label>`);
+        const question = (WIZARD_DATA[g]||[]).find(x=>x.code===t.code)?.question || '';
+        container.insertAdjacentHTML('beforeend',`<label class="option-card"><input id="${g}-${t.code}" type="${inputType}" name="${nameAttr}" value="${t.code}"><div class="card-content"><span class="code">${t.code}</span><span class="label">${t.label}</span><button class="help-icon" title="${question}">?</button></div></label>`);
       });
     });
 
     // Data section exclusivity handling
-    document.getElementById('data-group').addEventListener('change', (e) => {
-      if (e.target.name === 'data-exclusive') {
-        document.querySelectorAll('#data-group input[type="checkbox"]').forEach(cb => cb.checked = false);
-      } else if (e.target.type === 'checkbox' && e.target.checked) {
-        document.querySelectorAll('#data-group input[type="radio"]').forEach(rb => rb.checked = false);
+    const dataGroup = document.getElementById('data-group');
+    const dataWarning = document.getElementById('data-warning');
+    dataGroup.addEventListener('change', () => {
+      const exclusive = dataGroup.querySelector('input[name="data-exclusive"]:checked');
+      const checkboxes = dataGroup.querySelectorAll('input[type="checkbox"]');
+      const radios = dataGroup.querySelectorAll('input[name="data-exclusive"]');
+
+      if (exclusive) {
+        checkboxes.forEach(cb => { cb.checked = false; cb.disabled = true; });
+        dataWarning.textContent = 'This option stands alone';
+        dataWarning.style.display = 'block';
+      } else {
+        checkboxes.forEach(cb => cb.disabled = false);
+        const anyCheckbox = [...checkboxes].some(cb => cb.checked);
+        radios.forEach(rb => { rb.disabled = anyCheckbox; if (anyCheckbox) rb.checked = false; else rb.disabled = false; });
+        dataWarning.style.display = 'none';
       }
       paint();
     });
@@ -1144,131 +1111,64 @@
     window.loadAIModels = loadAIModels;
     window.openWizard = openWizard;
     window.closeWizard = closeWizard;
-    window.startWizard = startWizard;
-    window.answerQuestion = answerQuestion;
     window.finishWizard = finishWizard;
 
-    // Wizard Functions
     function openWizard(section) {
       currentWizardSection = section;
-      wizardQuestions = WIZARD_DATA[section];
-      currentQuestionIndex = 0;
-      wizardAnswers = [];
-      
-      document.getElementById('wizard-modal').style.display = 'flex';
+      const modal = document.getElementById('wizard-modal');
+      const optionsDiv = document.getElementById('wizard-options');
+      optionsDiv.innerHTML = '';
+
+      const arr = WIZARD_DATA[section];
+      arr.forEach(t => {
+        const inputType = section === 'data'
+          ? (t.exclusive ? 'radio' : 'checkbox')
+          : (section === 'role' || section === 'method' ? 'radio' : 'checkbox');
+        const nameAttr = section === 'data' && t.exclusive ? 'wizard-data-exclusive' : 'wizard';
+        optionsDiv.insertAdjacentHTML('beforeend',
+          `<label class="option-card"><input type="${inputType}" name="${nameAttr}" value="${t.code}"><div class="card-content"><span class="code">${t.code}</span><span class="label">${t.name}</span><button class="help-icon" title="${t.question}">?</button></div></label>`
+        );
+      });
+
+      modal.style.display = 'flex';
       document.getElementById('wizard-title').textContent = `TRACE Helper: ${section.charAt(0).toUpperCase() + section.slice(1)}`;
-      
-      // Reset modal state
-      document.getElementById('wizard-intro').style.display = 'block';
-      document.getElementById('wizard-question').style.display = 'none';
-      document.getElementById('wizard-complete').style.display = 'none';
-      document.getElementById('wizard-start').style.display = 'inline-flex';
-      document.getElementById('wizard-finish').style.display = 'none';
     }
 
     function closeWizard() {
       document.getElementById('wizard-modal').style.display = 'none';
     }
 
-    function startWizard() {
-      document.getElementById('wizard-intro').style.display = 'none';
-      document.getElementById('wizard-start').style.display = 'none';
-      document.getElementById('wizard-question').style.display = 'block';
-      
-      showCurrentQuestion();
-    }
-
-    function showCurrentQuestion() {
-      const question = wizardQuestions[currentQuestionIndex];
-      document.getElementById('question-number').textContent = currentQuestionIndex + 1;
-      document.getElementById('total-questions').textContent = wizardQuestions.length;
-      document.getElementById('current-tag').textContent = question.code;
-      document.getElementById('current-tag-name').textContent = question.name;
-      document.getElementById('question-text').textContent = question.question;
-    }
-
-    function answerQuestion(answer) {
-      const question = wizardQuestions[currentQuestionIndex];
-      wizardAnswers.push({
-        code: question.code,
-        name: question.name,
-        answer: answer,
-        exclusive: question.exclusive || false
-      });
-      
-      currentQuestionIndex++;
-      
-      if (currentQuestionIndex < wizardQuestions.length) {
-        showCurrentQuestion();
-      } else {
-        showResults();
-      }
-    }
-
-    function showResults() {
-      document.getElementById('wizard-question').style.display = 'none';
-      document.getElementById('wizard-complete').style.display = 'block';
-      document.getElementById('wizard-finish').style.display = 'inline-flex';
-      
-      // Show selected tags
-      const selectedTags = wizardAnswers.filter(a => a.answer).map(a => `${a.code} - ${a.name}`);
-      const tagsContainer = document.getElementById('selected-tags');
-      tagsContainer.innerHTML = selectedTags.map(tag => `<span class="selected-tag">${tag}</span>`).join('');
-      
-      if (selectedTags.length === 0) {
-        tagsContainer.innerHTML = '<p style="color: #6b7280; margin: 0;">No tags selected based on your answers.</p>';
-      }
-    }
-
     function finishWizard() {
-      // Apply the wizard results to the form
-      applyWizardResults();
-      closeWizard();
-    }
-
-    function applyWizardResults() {
       const section = currentWizardSection;
-      const yesAnswers = wizardAnswers.filter(a => a.answer);
-      
-      // Clear existing selections for this section
-      document.querySelectorAll(`#${section}-group input`).forEach(input => {
-        input.checked = false;
-      });
-      
-      // Handle exclusive selections (data and review sections)
+      const selected = [...document.querySelectorAll('#wizard-options input:checked')].map(i => i.value);
+
+      document.querySelectorAll(`#${section}-group input`).forEach(i => { i.checked = false; i.disabled = false; });
+
       if (section === 'data') {
-        const exclusiveAnswers = yesAnswers.filter(a => a.exclusive);
-        const nonExclusiveAnswers = yesAnswers.filter(a => !a.exclusive);
-        
-        if (exclusiveAnswers.length > 0) {
-          // Use the first exclusive answer (T or U)
-          const selected = exclusiveAnswers[0];
-          const input = document.querySelector(`input[name="data-exclusive"][value="${selected.code}"]`);
+        if (selected.some(code => ['M','U'].includes(code))) {
+          const code = selected.find(code => ['M','U'].includes(code));
+          const input = document.querySelector(`#data-group input[name="data-exclusive"][value="${code}"]`);
           if (input) input.checked = true;
         } else {
-          // Use non-exclusive answers (P and/or I)
-          nonExclusiveAnswers.forEach(answer => {
-            const input = document.getElementById(`${section}-${answer.code}`);
+          selected.forEach(code => {
+            const input = document.getElementById(`data-${code}`);
             if (input) input.checked = true;
           });
         }
-      } else if (section === 'review') {
-        // Review is single choice - use the first yes answer
-        if (yesAnswers.length > 0) {
-          const selected = yesAnswers[0];
-          const input = document.getElementById(`${section}-${selected.code}`);
+      } else if (section === 'role' || section === 'method') {
+        if (selected[0]) {
+          const input = document.getElementById(`${section}-${selected[0]}`);
           if (input) input.checked = true;
         }
-      } else {
-        // Role and method allow multiple selections
-        yesAnswers.forEach(answer => {
-          const input = document.getElementById(`${section}-${answer.code}`);
+      } else if (section === 'review') {
+        selected.forEach(code => {
+          const input = document.getElementById(`review-${code}`);
           if (input) input.checked = true;
         });
       }
-      
-      // Update the badge
+
       paint();
+      closeWizard();
     }
 
     // Update selected models display
@@ -1504,12 +1404,12 @@
       const roles=getChecked('role');
       const data=getChecked('data');
       const methods=getChecked('method');
-      const review=(document.querySelector('#review-group input:checked')||{}).value||'';
+      const review=getChecked('review');
 
       fill('role',roles);
       fill('data',data);
       fill('method',methods);
-      fill('review',review?[review]:[]);
+      fill('review',review);
 
       updateCitation();
     }
@@ -1537,12 +1437,12 @@
       const roles = getChecked('role');
       const data = getChecked('data');
       const methods = getChecked('method');
-      const review = (document.querySelector('#review-group input:checked')||{}).value||'';
-      
+      const review = getChecked('review');
+
       const roleText = roles.map(r => TAGS.role.find(t => t.code === r)?.label).filter(Boolean).join(', ');
       const dataText = data.map(d => TAGS.data.find(t => t.code === d)?.label).filter(Boolean).join(', ');
       const methodText = methods.map(m => TAGS.method.find(t => t.code === m)?.label).filter(Boolean).join(', ');
-      const reviewText = review ? TAGS.review.find(t => t.code === review)?.label || '' : '';
+      const reviewText = review.map(r => TAGS.review.find(t => t.code === r)?.label).filter(Boolean).join(', ');
       
       let modelText;
       if (selectedModels.length === 0) {
@@ -1558,10 +1458,10 @@
       }
       
       const today = new Date().toISOString().split('T')[0];
-      const traceCode = `${roles.join('')}–${data.join('')}–${methods.join('')}–${review}`;
-      
-      const citation = `AI-usage disclosure. Generated on ${today}. Model${selectedModels.length > 1 ? 's' : ''}: ${modelText}. 
-TRACE code ROLE–DATA–METHOD–REVIEW = ${traceCode}. 
+      const traceCode = `${roles.join('')}–${data.join('')}–${methods.join('')}–${review.join('')}`;
+
+      const citation = `AI-usage disclosure. Generated on ${today}. Model${selectedModels.length > 1 ? 's' : ''}: ${modelText}.
+TRACE code ROLE–DATA–METHOD–REVIEW = ${traceCode}.
 Role: ${roleText || 'Not specified'}. Data: ${dataText || 'Not specified'}. Method: ${methodText || 'Not specified'}. Review: ${reviewText || 'Not specified'}.`;
 
       citationDiv.textContent = citation;
