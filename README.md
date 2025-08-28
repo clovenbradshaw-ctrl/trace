@@ -60,7 +60,7 @@ The level and type of human oversight applied after generation. This quadrant in
 
 - **Unreviewed**: No human checked the output before use
 - **Skimmed**: Quick review for tone and obvious issues only
-- **Peer Review**: Non-expert but knowledgeable person reviewed carefully
+- **General Review**: Non-expert but knowledgeable person reviewed carefully
 - **Expert Review**: Subject-matter expert verified accuracy and quality
 - **AI Self-Check**: The model was prompted to critique or improve its own output
 
@@ -86,7 +86,7 @@ Finding typos and homophone replacements (they're/their, its/it's) that verbal l
 
 ### Code Development
 Building interactive charts and mini-websites with coding assistant tools.
-- Typical badge: `Public-Creative-Augmented-Peer`
+- Typical badge: `Public-Creative-Augmented-General`
 
 ### Content Creation
 Generating drafts for blog posts, reports, or creative writing.
@@ -131,7 +131,7 @@ npx http-server
 **Citation**: "AI drafted content from public sources using a rewriting methodology. The output received a quick review for tone and obvious issues."
 
 ### Technical Documentation
-**Badge Code**: `M-Synthesis-Augmented-Peer`
+**Badge Code**: `M-Synthesis-Augmented-General`
 **Citation**: "AI synthesized information from its training data using augmented tools. A knowledgeable colleague reviewed the output carefully."
 
 ## Technical Details
@@ -201,18 +201,18 @@ Details: [natural language description]
 -------------------------
 ```
 AI Disclosure (2025-08-28)
-TRACE: S-P-G-P
+TRACE: S-P-G-G
 
 Role: Synthesis
 Data: Public
 Method: Guided
-Review: Peer
+Review: General
 
 AI Models Used:
 • Anthropic: Claude Opus 4.1 (anthropic/claude-opus-4.1)
 
-I used AI to synthesize information from multiple sources using public sources, through guided prompting. 
-The output underwent peer review. The AI model used was Anthropic: Claude Opus 4.1.
+I used AI to synthesize information from multiple sources using public sources, through guided prompting.
+The output underwent general review. The AI model used was Anthropic: Claude Opus 4.1.
 ```
 -------------------------
 
