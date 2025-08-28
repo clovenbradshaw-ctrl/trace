@@ -96,19 +96,19 @@
       flex-direction: column;
     }
 
-    .quadrant.role { 
-      border-left: 4px solid #06b6d4; 
+    .quadrant.task {
+      border-left: 4px solid #06b6d4;
       grid-area: 1 / 1;
     }
-    .quadrant.data { 
+    .quadrant.resources {
       border-left: 4px solid #22c55e;
       grid-area: 1 / 2;
     }
-    .quadrant.method { 
+    .quadrant.approachCraft {
       border-left: 4px solid #f97316;
       grid-area: 2 / 1;
     }
-    .quadrant.review { 
+    .quadrant.evaluation {
       border-left: 4px solid #8b5cf6;
       grid-area: 2 / 2;
     }
@@ -345,7 +345,22 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      position: relative;
     }
+
+    .corner-label {
+      position: absolute;
+      font-size: 10px;
+      color: #666;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .corner-label.top-left { top: 5px; left: 5px; }
+    .corner-label.top-right { top: 5px; right: 5px; }
+    .corner-label.bottom-left { bottom: 5px; left: 5px; }
+    .corner-label.bottom-right { bottom: 5px; right: 5px; }
 
     .model-name {
       margin-top: 12px;
@@ -579,30 +594,30 @@
     <div class="panel controls-panel">
       <!-- TRACE Options Quadrant -->
       <div class="quadrant-grid">
-        <div class="quadrant role" id="role-group">
+        <div class="quadrant task" id="task-group">
           <div class="quadrant-header">
-            Role
+            Task
           </div>
           <div class="quadrant-options"></div>
         </div>
 
-        <div class="quadrant data" id="data-group">
+        <div class="quadrant resources" id="resources-group">
           <div class="quadrant-header">
-            Data
+            Resources
           </div>
           <div class="quadrant-options"></div>
         </div>
 
-        <div class="quadrant method" id="method-group">
+        <div class="quadrant approachCraft" id="approachCraft-group">
           <div class="quadrant-header">
-            Method
+            Approach &amp; Craft
           </div>
           <div class="quadrant-options"></div>
         </div>
 
-        <div class="quadrant review" id="review-group">
+        <div class="quadrant evaluation" id="evaluation-group">
           <div class="quadrant-header">
-            Review
+            Evaluation
           </div>
           <div class="quadrant-options"></div>
         </div>
@@ -639,6 +654,10 @@
             <div class="cell"><span class="code"></span><span class="label"></span></div>
             <div class="cell"><span class="code"></span><span class="label"></span></div>
           </div>
+          <div class="corner-label top-left">TASK</div>
+          <div class="corner-label top-right">RESOURCES</div>
+          <div class="corner-label bottom-left">APPROACH &amp; CRAFT</div>
+          <div class="corner-label bottom-right">EVALUATION</div>
           <div id="model-name" class="model-name"></div>
         </div>
 
@@ -686,7 +705,7 @@
 
   <script>
     const TAGS = {
-      role: [
+      task: [
         {code: 'A', label: 'Assist', desc: 'Clean up grammar & style'},
         {code: 'D', label: 'Draft', desc: 'Wrote first draft'},
         {code: 'S', label: 'Synthesis', desc: 'Combined sources'},
@@ -694,71 +713,26 @@
         {code: 'E', label: 'Exploratory', desc: 'Experimental testing'},
         {code: 'C', label: 'Creative', desc: 'Generated new content'}
       ],
-      data: [
+      resources: [
         {code: 'P', label: 'Public', desc: 'Public or user provided'},
         {code: 'I', label: 'Internal', desc: 'Private sources'},
         {code: 'M', label: 'Model-only', desc: 'No external input', exclusive: true},
         {code: 'U', label: 'Unclear', desc: 'Source unknown', exclusive: true}
       ],
-      method: [
+      approachCraft: [
         {code: 'R', label: 'Raw', desc: 'First answer', exclusive: true},
         {code: 'G', label: 'Guided', desc: 'Step-by-step prompts'},
         {code: 'W', label: 'Rewriter', desc: 'Transformed text'},
         {code: 'A', label: 'Augmented', desc: 'Used tools'}
       ],
-      review: [
-        {code: 'U', label: 'Unreviewed', desc: 'Not checked', exclusive: true},
-        {code: 'S', label: 'Skimmed', desc: 'Quick read'},
-        {code: 'G', label: 'General', desc: 'Non-expert review'},
-        {code: 'E', label: 'Expert', desc: 'Expert reviewed'},
-        {code: 'A', label: 'AI-Check', desc: 'Self-reviewed'}
+      evaluation: [
+      {code: 'U', label: 'Unreviewed', desc: 'Not checked', exclusive: true},
+      {code: 'S', label: 'Skimmed', desc: 'Quick read'},
+      {code: 'G', label: 'General', desc: 'Non-expert review'},
+      {code: 'E', label: 'Expert', desc: 'Expert reviewed'},
+      {code: 'A', label: 'AI-Check', desc: 'Self-reviewed'}
       ]
     };
-
-    const NL_TEMPLATES = {
-      role: {
-        'A': {verb: 'clean up', action: 'grammar and style', prep: 'in the text'},
-        'D': {verb: 'draft', action: 'initial content'},
-        'S': {verb: 'synthesize', action: 'information', prep: 'from multiple sources'},
-        'N': {verb: 'analyze', action: 'patterns and data'},
-        'E': {verb: 'explore', action: 'possibilities', prep: 'through experimental testing'},
-        'C': {verb: 'create', action: 'new content'}
-      },
-      data: {
-        single: {
-          'P': 'public sources',
-          'I': 'internal/private data',
-          'M': 'only the AI model\'s training data',
-          'U': 'unclear or unspecified sources'
-        },
-          combinations: {
-            'PI': 'public and internal sources'
-          }
-      },
-      method: {
-        'R': {desc: 'with raw output', suffix: '(first response used)'},
-        'G': {desc: 'through guided prompting'},
-        'W': {desc: 'by rewriting and transforming text'},
-        'A': {desc: 'with augmented tools and capabilities'}
-      },
-      review: {
-        single: {
-          'U': 'has not been reviewed',
-          'S': 'was skimmed quickly',
-          'G': 'underwent general review',
-          'E': 'was expert reviewed',
-          'A': 'was AI-checked for consistency'
-        },
-        combinations: {
-          'SG': 'was skimmed and underwent general review',
-          'SE': 'was skimmed and expert reviewed',
-          'GE': 'underwent general and expert review',
-          'SA': 'was skimmed and AI-checked',
-          'SGE': 'was skimmed, underwent general review, and expert reviewed'
-        }
-      }
-    };
-
     let selectedModels = [];
     let aiModels = [];
 
@@ -823,7 +797,7 @@
         });
       });
 
-      ['role-group', 'data-group', 'method-group', 'review-group'].forEach(setupGroup);
+      ['task-group', 'resources-group', 'approachCraft-group', 'evaluation-group'].forEach(setupGroup);
     }
 
     // Smart text sizing for badge cells
@@ -861,140 +835,67 @@
 
     // Update badge display
     function updateBadge() {
-      const role = [...document.querySelectorAll('#role-group input:checked')];
-      const data = [...document.querySelectorAll('#data-group input:checked')];
-      const method = [...document.querySelectorAll('#method-group input:checked')];
-      const review = [...document.querySelectorAll('#review-group input:checked')];
+      const task = [...document.querySelectorAll('#task-group input:checked')];
+      const resources = [...document.querySelectorAll('#resources-group input:checked')];
+      const approachCraft = [...document.querySelectorAll('#approachCraft-group input:checked')];
+      const evaluation = [...document.querySelectorAll('#evaluation-group input:checked')];
 
       const cells = document.querySelectorAll('.cell');
 
-      const roleCode = cells[0].querySelector('.code');
-      const roleLabel = cells[0].querySelector('.label');
-      roleCode.textContent = role.map(r => r.value).join('');
-      roleLabel.textContent = role.length ?
-        role.map(r => TAGS.role.find(t => t.code === r.value).label).join(' + ') : '';
-      smartFit(roleCode, roleLabel);
+      const taskCode = cells[0].querySelector('.code');
+      const taskLabel = cells[0].querySelector('.label');
+      taskCode.textContent = task.map(t => t.value).join('');
+      taskLabel.textContent = task.length ?
+        task.map(t => TAGS.task.find(tag => tag.code === t.value).label).join(' + ') : '';
+      smartFit(taskCode, taskLabel);
 
-      const dataCode = cells[1].querySelector('.code');
-      const dataLabel = cells[1].querySelector('.label');
-      dataCode.textContent = data.map(d => d.value).join('');
-      dataLabel.textContent = data.length ?
-        data.map(d => TAGS.data.find(t => t.code === d.value).label).join(' + ') : '';
-      smartFit(dataCode, dataLabel);
+      const resourcesCode = cells[1].querySelector('.code');
+      const resourcesLabel = cells[1].querySelector('.label');
+      resourcesCode.textContent = resources.map(r => r.value).join('');
+      resourcesLabel.textContent = resources.length ?
+        resources.map(r => TAGS.resources.find(tag => tag.code === r.value).label).join(' + ') : '';
+      smartFit(resourcesCode, resourcesLabel);
 
-      const methodCode = cells[2].querySelector('.code');
-      const methodLabel = cells[2].querySelector('.label');
-      methodCode.textContent = method.map(m => m.value).join('');
-      methodLabel.textContent = method.length ?
-        method.map(m => TAGS.method.find(t => t.code === m.value).label).join(' + ') : '';
-      smartFit(methodCode, methodLabel);
+      const approachCode = cells[2].querySelector('.code');
+      const approachLabel = cells[2].querySelector('.label');
+      approachCode.textContent = approachCraft.map(a => a.value).join('');
+      approachLabel.textContent = approachCraft.length ?
+        approachCraft.map(a => TAGS.approachCraft.find(tag => tag.code === a.value).label).join(' + ') : '';
+      smartFit(approachCode, approachLabel);
 
-      const reviewCode = cells[3].querySelector('.code');
-      const reviewLabel = cells[3].querySelector('.label');
-      reviewCode.textContent = review.map(r => r.value).join('');
-      reviewLabel.textContent = review.length ?
-        review.map(r => TAGS.review.find(t => t.code === r.value).label).join(' + ') : '';
-      smartFit(reviewCode, reviewLabel);
+      const evaluationCode = cells[3].querySelector('.code');
+      const evaluationLabel = cells[3].querySelector('.label');
+      evaluationCode.textContent = evaluation.map(e => e.value).join('');
+      evaluationLabel.textContent = evaluation.length ?
+        evaluation.map(e => TAGS.evaluation.find(tag => tag.code === e.value).label).join(' + ') : '';
+      smartFit(evaluationCode, evaluationLabel);
 
       updateCitation();
     }
 
     // Update citation panels
     function updateCitation() {
-      const role = [...document.querySelectorAll('#role-group input:checked')];
-      const data = [...document.querySelectorAll('#data-group input:checked')];
-      const method = [...document.querySelectorAll('#method-group input:checked')];
-      const review = [...document.querySelectorAll('#review-group input:checked')];
+      const task = [...document.querySelectorAll('#task-group input:checked')];
+      const resources = [...document.querySelectorAll('#resources-group input:checked')];
+      const approachCraft = [...document.querySelectorAll('#approachCraft-group input:checked')];
+      const evaluation = [...document.querySelectorAll('#evaluation-group input:checked')];
 
-      const traceCode = `${role.map(r => r.value).join('') || '_'}-${data.map(d => d.value).join('') || '_'}-${method.map(m => m.value).join('') || '_'}-${review.map(r => r.value).join('') || '_'}`;
-      
-      // Build natural language description
+      const traceCode = `${task.map(t => t.value).join('') || '_'}-${resources.map(r => r.value).join('') || '_'}-${approachCraft.map(a => a.value).join('') || '_'}-${evaluation.map(e => e.value).join('') || '_'}`;
+
+      const taskValue = task.length ? task.map(t => TAGS.task.find(tag => tag.code === t.value).label).join(' + ') : 'Unspecified';
+      const resourcesValue = resources.length ? resources.map(r => TAGS.resources.find(tag => tag.code === r.value).label).join(' + ') : 'Unspecified';
+      const approachCraftValue = approachCraft.length ? approachCraft.map(a => TAGS.approachCraft.find(tag => tag.code === a.value).label).join(' + ') : 'Unspecified';
+      const evaluationValue = evaluation.length ? evaluation.map(e => TAGS.evaluation.find(tag => tag.code === e.value).label).join(' + ') : 'None';
+
       const modelNames = selectedModels.map(m => m.name);
-      let naturalText = `I used AI${modelNames.length ? ` (${modelNames.join(' + ')})` : ''} to `;
-      
-      if (role.length > 0) {
-        const parts = role.map(r => {
-          const tmpl = NL_TEMPLATES.role[r.value];
-          if (!tmpl) return '';
-          let str = `${tmpl.verb} ${tmpl.action}`;
-          if (tmpl.prep) str += ` ${tmpl.prep}`;
-          return str;
-        }).filter(Boolean);
-        if (parts.length === 1) {
-          naturalText += parts[0];
-        } else if (parts.length === 2) {
-          naturalText += `${parts[0]} and ${parts[1]}`;
-        } else {
-          const last = parts.pop();
-          naturalText += `${parts.join(', ')}, and ${last}`;
-        }
-      } else {
-        naturalText += "assist with unspecified tasks";
-      }
-      
-      if (data.length > 0) {
-        const dataCodes = data.map(d => d.value).sort().join('');
-        if (NL_TEMPLATES.data.combinations[dataCodes]) {
-          naturalText += ` using ${NL_TEMPLATES.data.combinations[dataCodes]}`;
-        } else if (data.length === 1 && NL_TEMPLATES.data.single[data[0].value]) {
-          naturalText += ` using ${NL_TEMPLATES.data.single[data[0].value]}`;
-        } else {
-          const sources = data.map(d => NL_TEMPLATES.data.single[d.value] || d.value);
-          if (sources.length === 2) {
-            naturalText += ` using ${sources[0]} and ${sources[1]}`;
-          } else {
-            const last = sources.pop();
-            naturalText += ` using ${sources.join(', ')}, and ${last}`;
-          }
-        }
-      } else {
-        naturalText += " using unspecified sources";
-      }
-      
-      if (method.length > 0) {
-        const parts = method.map(m => {
-          const tmpl = NL_TEMPLATES.method[m.value];
-          if (!tmpl) return '';
-          return `${tmpl.desc}${tmpl.suffix ? ` ${tmpl.suffix}` : ''}`;
-        }).filter(Boolean);
-        naturalText += `, ${parts.join(', ')}`;
-      } else {
-        naturalText += ", using an unspecified approach";
-      }
-      
-      naturalText += ". ";
-      
-      naturalText += "The output ";
-      if (review.length > 0) {
-        const reviewCodes = review.map(r => r.value).sort().join('');
-        if (NL_TEMPLATES.review.combinations[reviewCodes]) {
-          naturalText += NL_TEMPLATES.review.combinations[reviewCodes];
-        } else if (review.length === 1 && NL_TEMPLATES.review.single[review[0].value]) {
-          naturalText += NL_TEMPLATES.review.single[review[0].value];
-        } else {
-          const reviews = review.map(r => NL_TEMPLATES.review.single[r.value] || r.value);
-          if (reviews.length === 1) {
-            naturalText += reviews[0];
-          } else if (reviews.length === 2) {
-            naturalText += `${reviews[0].replace(/^(was |has been |underwent )/, '')} and ${reviews[1].replace(/^(was |has been |underwent )/, '')}`;
-          } else {
-            const lastReview = reviews.pop();
-            naturalText += `underwent ${reviews.map(r => r.replace(/^(was |has been |underwent )/, '')).join(', ')}, and ${lastReview.replace(/^(was |has been |underwent )/, '')}`;
-          }
-        }
-      } else {
-        naturalText += "has not been reviewed";
-      }
-      
-      naturalText += ".";
+      const naturalText = `AI${modelNames.length ? ' (' + modelNames.join(' + ') + ')' : ''} performed ${taskValue.toLowerCase()} using ${resourcesValue.toLowerCase()} resources, through ${approachCraftValue.toLowerCase()} methodology. The output underwent ${evaluationValue.toLowerCase()}.`;
 
-      // Formal citation
       let formal = `AI Disclosure (${new Date().toISOString().split('T')[0]})\nTRACE: ${traceCode}${modelNames.length ? ' via ' + modelNames.join(' + ') : ''}\n\n`;
-      formal += `Role: ${role.length ? role.map(r => TAGS.role.find(t => t.code === r.value).label).join(', ') : 'Unspecified'}\n`;
-      formal += `Data: ${data.length ? data.map(d => TAGS.data.find(t => t.code === d.value).label).join(', ') : 'Unspecified'}\n`;
-      formal += `Method: ${method.length ? method.map(m => TAGS.method.find(t => t.code === m.value).label).join(', ') : 'Unspecified'}\n`;
-      formal += `Review: ${review.length ? review.map(r => TAGS.review.find(t => t.code === r.value).label).join(', ') : 'None'}`;
-      
+      formal += `Task: ${taskValue}\n`;
+      formal += `Resources: ${resourcesValue}\n`;
+      formal += `Approach & Craft: ${approachCraftValue}\n`;
+      formal += `Evaluation: ${evaluationValue}`;
+
       document.getElementById('tab-formal').textContent = formal;
       document.getElementById('tab-natural').textContent = naturalText;
     }
